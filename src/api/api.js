@@ -253,54 +253,44 @@ export const chatAPI = {
   },
 };
 export const notificationAPI = {
-  getNotifications: async (page = 1, limit = 20) => {
-    try {
-      const response = await api.get(`/notifications?page=${page}&limit=${limit}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      return { success: false, error: error.response?.data?.error || error.message };
-    }
+  getNotifications: async (page = 1) => {
+    const response = await fetch(`/api/notifications?page=${page}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return await response.json();
   },
 
   markAsRead: async (notificationIds) => {
-    try {
-      const response = await api.patch(`/notifications/read`, { notificationIds });
-      return response.data;
-    } catch (error) {
-      console.error("Error marking notifications as read:", error);
-      return { success: false, error: error.response?.data?.error || error.message };
-    }
+    const response = await fetch("/api/notifications/read", {
+      method: "PATCH", // Tu backend usa PATCH, no PUT
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({ notificationIds }),
+    });
+    return await response.json();
   },
 
   markAllAsRead: async () => {
-    try {
-      const response = await api.patch(`/notifications/read-all`);
-      return response.data;
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-      return { success: false, error: error.response?.data?.error || error.message };
-    }
-  },
-
-  deleteNotification: async (notificationId) => {
-    try {
-      const response = await api.delete(`/notifications/${notificationId}`);
-      return response.data;
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-      return { success: false, error: error.response?.data?.error || error.message };
-    }
+    const response = await fetch("/api/notifications/read-all", {
+      method: "PATCH", // Tu backend usa PATCH
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return await response.json();
   },
 
   getUnreadCount: async () => {
-    try {
-      const response = await api.get(`/notifications/unread-count`);
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching unread count:", error);
-      return { success: false, error: error.response?.data?.error || error.message };
-    }
+    const response = await fetch("/api/notifications/unread-count", {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    return await response.json();
   },
 };
 

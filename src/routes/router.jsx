@@ -9,6 +9,7 @@ import Login from "../auth/pages/Login";
 import { Home } from "../pages/Home/Home";
 import { ChatPage, FeedPage, ProfileEditPage } from "../pages/minired-frontend-pages";
 
+
 export const router = createBrowserRouter([
   {
     path: "/",
