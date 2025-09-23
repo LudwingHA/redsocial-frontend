@@ -370,24 +370,39 @@ export function PostComposer({ onPosted }) {
   );
 }
 
-/* ------------------ PostCard (Actualizado) ------------------ */
-function CommentList({ comments, onAdd }) {
+/* ------------------ CommentList (Actualizado) ------------------ */
+function CommentList({ comments, onAdd, postId, postAuthorId }) {
   const [text, setText] = useState("");
+  const { user } = useAuth();
+  const { socket, isConnected } = useSocket();
+
   const handleAdd = async (e) => {
     e.preventDefault();
     if (!text.trim()) return;
     try {
       await onAdd(text);
       setText("");
+
+      // EMITIR NOTIFICACIÓN DE COMENTARIO (también desde aquí por si acaso)
+      if (socket && isConnected && user.id !== postAuthorId) {
+        console.log("💬 Emitiendo notificación de comentario desde CommentList");
+        socket.emit("newComment", {
+          postId: postId,
+          commenterId: user.id,
+          commentContent: text,
+          postAuthorId: postAuthorId
+        });
+      }
     } catch (err) {
       console.error(err);
     }
   };
+
   return (
     <div>
       {comments?.map((c) => (
         <div key={c._id || c.timestamp}>
-          {c.author?.username || "anon"}: {c.content}
+          <strong>{c.author?.username || "anon"}</strong>: {c.content}
         </div>
       ))}
       <form onSubmit={handleAdd}>
@@ -401,10 +416,11 @@ function CommentList({ comments, onAdd }) {
     </div>
   );
 }
+/* ------------------ PostCard (Actualizado para notificaciones) ------------------ */
 export function PostCard({ post, onLikeToggle, onCommentAdd }) {
   const [localPost, setLocalPost] = useState(post);
   const { user } = useAuth();
-  const { socket, isConnected } = useSocket(); // Socket global
+  const { socket, isConnected } = useSocket();
 
   useEffect(() => setLocalPost(post), [post]);
 
@@ -419,12 +435,13 @@ export function PostCard({ post, onLikeToggle, onCommentAdd }) {
         }));
         onLikeToggle && onLikeToggle(localPost._id, res);
 
-        // Usar socket global para emitir
-        if (socket && isConnected && user._id !== localPost.author._id) {
+        // EMITIR NOTIFICACIÓN DE LIKE
+        if (socket && isConnected && user.id !== localPost.author._id) {
+          console.log("❤️ Emitiendo notificación de like");
           socket.emit("postLiked", {
             postId: localPost._id,
-            likerId: user._id,
-            postAuthorId: localPost.author._id,
+            likerId: user.id,  // Usar user.id
+            postAuthorId: localPost.author._id
           });
         }
       }
@@ -442,19 +459,30 @@ export function PostCard({ post, onLikeToggle, onCommentAdd }) {
       }));
       onCommentAdd && onCommentAdd(localPost._id, res.comment);
 
-      // Usar socket global para emitir
-      if (socket && isConnected && user._id !== localPost.author._id) {
+      // EMITIR NOTIFICACIÓN DE COMENTARIO
+      if (socket && isConnected && user.id !== localPost.author._id) {
+        console.log("💬 Emitiendo notificación de comentario");
         socket.emit("newComment", {
           postId: localPost._id,
-          commenterId: user._id,
+          commenterId: user.id,  // Usar user.id
           commentContent: content,
+          postAuthorId: localPost.author._id
         });
       }
     }
   };
+
+  const hasLiked = localPost.likes?.some((like) =>
+    like._id ? like._id.toString() === user?.id : like.toString() === user?.id
+  );
+
   return (
-    <article>
-      <div>{localPost.author?.username}</div>
+    <article
+      style={{ border: "1px solid #ccc", padding: "15px", margin: "10px 0" }}
+    >
+      <div>
+        <strong>{localPost.author?.username}</strong>
+      </div>
       <div>{localPost.content}</div>
       {localPost.image && (
         <img
@@ -463,13 +491,20 @@ export function PostCard({ post, onLikeToggle, onCommentAdd }) {
           style={{ maxWidth: 300 }}
         />
       )}
-      <div>Likes: {localPost.likes?.length ?? 0}</div>
-      <button onClick={handleLike}>Me gusta</button>
-      <CommentList comments={localPost.comments} onAdd={addComment} />
+      <div style={{ marginTop: "10px" }}>
+        <button onClick={handleLike} style={{ marginRight: "10px" }}>
+          {hasLiked ? "❤️" : "🤍"} {localPost.likes?.length || 0}
+        </button>
+        <span>💬 {localPost.comments?.length || 0}</span>
+      </div>
+      <CommentList
+        comments={localPost.comments}
+        onAdd={addComment}
+        postId={localPost._id}
+        postAuthorId={localPost.author._id}
+      />
     </article>
   );
-
-  // ... resto del componente igual
 }
 
 /* ------------------ ChatPage (Actualizado con Socket Global) ------------------ */
@@ -597,17 +632,52 @@ export function ChatPage() {
   };
 
   // Enviar mensaje
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!text.trim() || !activeChat || !isConnected) return;
+// En la función sendMessage del ChatPage, agregar:
+const sendMessage = async (e) => {
+  e.preventDefault();
+  if (!text.trim() || !activeChat || !isConnected) return;
 
-    try {
-      const res = await chatAPI.sendMessage(activeChat._id, text);
-      if (res.success) setText(""); // El socket actualizará los mensajes
-    } catch (err) {
-      console.error("Error enviando mensaje:", err);
+  try {
+    // Mensaje optimista
+    const tempMessage = {
+      _id: Date.now().toString(),
+      sender: { _id: user.id, username: user.username, avatar: user.avatar },
+      content: text.trim(),
+      timestamp: new Date(),
+      isSending: true,
+    };
+
+    setMessages((prev) => [...prev, tempMessage]);
+    setText("");
+
+    // Asegurar que el socket esté conectado antes de enviar
+    await waitForConnection();
+
+    // Enviar mensaje via HTTP API
+    const res = await chatAPI.sendMessage(activeChat._id, text.trim());
+
+    if (res.success) {
+      // EMITIR NOTIFICACIÓN DE MENSAJE
+      const receiver = activeChat.participants.find(p => p._id !== user.id);
+      if (receiver) {
+        console.log("💌 Emitiendo notificación de mensaje");
+        socket.emit("newMessage", {
+          chatId: activeChat._id,
+          senderId: user.id,
+          receiverId: receiver._id,
+          messageContent: text.trim()
+        });
+      }
+    } else {
+      // Revertir mensaje optimista si falla
+      setMessages((prev) => prev.filter((m) => m._id !== tempMessage._id));
+      setText(tempMessage.content);
     }
-  };
+  } catch (err) {
+    console.error("Error enviando mensaje:", err);
+    setMessages((prev) => prev.filter((m) => !m.isSending));
+  }
+};
 
   // Emitir typing
   const handleTyping = () => {

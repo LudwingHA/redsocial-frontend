@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { useNotifications } from '../hooks/useNotifications';
+import { useNotifications } from '../pages/minired-frontend-pages';
+import { useAuth } from '../auth/context/AuthContext';
 
-export function NotificationBell({ user }) {
+export function NotificationBell() { // Quitar el parámetro user
+  const { user } = useAuth(); // Obtener user del contexto
   const [isOpen, setIsOpen] = useState(false);
   const {
     notifications,
@@ -9,7 +11,10 @@ export function NotificationBell({ user }) {
     isLoading,
     markAsRead,
     markAllAsRead
-  } = useNotifications(user);
+  } = useNotifications(); // Quitar el parámetro user
+
+  // Si no hay usuario, no mostrar nada
+  if (!user) return null;
 
   const handleNotificationClick = (notification) => {
     if (!notification.isRead) {
@@ -19,6 +24,8 @@ export function NotificationBell({ user }) {
     // Navegar según el tipo de notificación
     if (notification.type === 'like_post' || notification.type === 'comment_post') {
       window.location.href = `/post/${notification.post}`;
+    } else if (notification.type === 'new_message' && notification.metadata?.chatId) {
+      window.location.href = `/chat?chatId=${notification.metadata.chatId}`;
     }
     
     setIsOpen(false);
@@ -31,7 +38,7 @@ export function NotificationBell({ user }) {
       case 'like_post':
         return `${senderName} le dio like a tu publicación`;
       case 'comment_post':
-        return `${senderName} comentó tu publicación: "${notification.comment}"`;
+        return `${senderName} comentó: "${notification.comment || 'tu publicación'}"`;
       case 'new_message':
         return `${senderName} te envió un mensaje`;
       default:
@@ -105,7 +112,7 @@ export function NotificationBell({ user }) {
                   fontSize: '12px'
                 }}
               >
-                Marcar todas como leídas
+                Marcar todas
               </button>
             )}
           </div>
@@ -129,11 +136,20 @@ export function NotificationBell({ user }) {
                     background: notification.isRead ? 'white' : '#f8f9fa',
                     transition: 'background 0.2s'
                   }}
+                  onMouseEnter={(e) => e.target.style.background = '#f0f0f0'}
+                  onMouseLeave={(e) => e.target.style.background = notification.isRead ? 'white' : '#f8f9fa'}
                 >
-                  <div style={{ fontWeight: notification.isRead ? 'normal' : 'bold' }}>
+                  <div style={{ 
+                    fontWeight: notification.isRead ? 'normal' : 'bold',
+                    fontSize: '14px'
+                  }}>
                     {getNotificationText(notification)}
                   </div>
-                  <div style={{ fontSize: '12px', color: '#999', marginTop: '5px' }}>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#999', 
+                    marginTop: '5px' 
+                  }}>
                     {new Date(notification.createdAt).toLocaleTimeString()}
                   </div>
                 </div>
