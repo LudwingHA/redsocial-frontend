@@ -252,5 +252,56 @@ export const chatAPI = {
     return response.data;
   },
 };
+export const notificationAPI = {
+  getNotifications: async (page = 1, limit = 20) => {
+    try {
+      const response = await api.get(`/notifications?page=${page}&limit=${limit}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      return { success: false, error: error.response?.data?.error || error.message };
+    }
+  },
+
+  markAsRead: async (notificationIds) => {
+    try {
+      const response = await api.patch(`/notifications/read`, { notificationIds });
+      return response.data;
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+      return { success: false, error: error.response?.data?.error || error.message };
+    }
+  },
+
+  markAllAsRead: async () => {
+    try {
+      const response = await api.patch(`/notifications/read-all`);
+      return response.data;
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      return { success: false, error: error.response?.data?.error || error.message };
+    }
+  },
+
+  deleteNotification: async (notificationId) => {
+    try {
+      const response = await api.delete(`/notifications/${notificationId}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      return { success: false, error: error.response?.data?.error || error.message };
+    }
+  },
+
+  getUnreadCount: async () => {
+    try {
+      const response = await api.get(`/notifications/unread-count`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+      return { success: false, error: error.response?.data?.error || error.message };
+    }
+  },
+};
 
 export default api;
