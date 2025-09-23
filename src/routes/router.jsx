@@ -6,8 +6,7 @@ import PublicRoute from "./PublicRoute";
 import Register from "../auth/pages/Register";
 import Login from "../auth/pages/Login";
 
-import { Home } from "../pages/Home/Home";
-import { ChatPage, FeedPage, ProfileEditPage } from "../pages/minired-frontend-pages";
+import App from "../App";
 
 
 export const router = createBrowserRouter([
@@ -15,22 +14,9 @@ export const router = createBrowserRouter([
     path: "/",
     element: (
       <PrivateRoute>
-        <FeedPage></FeedPage>
+        <App></App>
       </PrivateRoute>
     ),
-  },
-  {
-    path: "/profile",
-    element: (
-      <PrivateRoute>
-        <ProfileEditPage></ProfileEditPage>
-      </PrivateRoute>
-    ),
-  },
-  {path: "/chat",
-    element: (<PrivateRoute>
-      <ChatPage></ChatPage>
-    </PrivateRoute>)
   },
   {
     path: "/login",
@@ -46,14 +32,6 @@ export const router = createBrowserRouter([
       <PublicRoute>
         <Register />
       </PublicRoute>
-    ),
-  },
-  {
-    path: "/dashboard",
-    element: (
-      <PrivateRoute>
-        <Home />
-      </PrivateRoute>
     ),
   },
 ]);
