@@ -5,21 +5,39 @@ import PublicRoute from "./PublicRoute";
 // Pages
 import Register from "../auth/pages/Register";
 import Login from "../auth/pages/Login";
-import Dashboard from "../pages/dashboard/Dashboard";
 
+import { Home } from "../pages/Home/Home";
+import { ChatPage, FeedPage, ProfileEditPage } from "../pages/minired-frontend-pages";
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <Register />
+    element: (
+      <PrivateRoute>
+        <FeedPage></FeedPage>
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/profile",
+    element: (
+      <PrivateRoute>
+        <ProfileEditPage></ProfileEditPage>
+      </PrivateRoute>
+    ),
+  },
+  {path: "/chat",
+    element: (<PrivateRoute>
+      <ChatPage></ChatPage>
+    </PrivateRoute>)
   },
   {
     path: "/login",
     element: (
       <PublicRoute>
-        <Login /> 
+        <Login />
       </PublicRoute>
-    )
+    ),
   },
   {
     path: "/register",
@@ -27,14 +45,14 @@ export const router = createBrowserRouter([
       <PublicRoute>
         <Register />
       </PublicRoute>
-    )
+    ),
   },
   {
     path: "/dashboard",
     element: (
       <PrivateRoute>
-        <Dashboard />
+        <Home />
       </PrivateRoute>
-    )
-  }
+    ),
+  },
 ]);
