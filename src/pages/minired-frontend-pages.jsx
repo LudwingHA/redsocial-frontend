@@ -395,6 +395,7 @@ export function ChatPage() {
   const [text, setText] = useState("");
   const [availableUsers, setAvailableUsers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
+  const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -405,58 +406,89 @@ export function ChatPage() {
 
   // Inicializar socket
   useEffect(() => {
-    socketRef.current = io(SOCKET_URL, { withCredentials: true });
+    if (!user) return;
+
+    socketRef.current = io(SOCKET_URL, { 
+      withCredentials: true,
+      query: { userId: user._id }
+    });
+    
     const socket = socketRef.current;
 
-    socket.on("connect", () => console.log("🔌 Socket conectado", socket.id));
+    socket.on("connect", () => {
+      console.log("🔌 Socket conectado", socket.id);
+      setIsConnected(true);
+    });
 
+    socket.on("disconnect", () => {
+      console.log("🔌 Socket desconectado");
+      setIsConnected(false);
+    });
+
+    // Manejar nuevos mensajes
     socket.on("newMessage", ({ chatId, message }) => {
+      console.log("Nuevo mensaje recibido:", message);
+      
       setChats((prev) =>
         prev.map((c) =>
           c._id === chatId
-            ? { ...c, lastMessage: message.timestamp, messages: [...(c.messages || []), message] }
+            ? { 
+                ...c, 
+                lastMessage: message.timestamp, 
+                lastMessageContent: message.content 
+              }
             : c
         )
       );
 
       if (activeChat?._id === chatId) {
         setMessages((prev) => {
-          const exists = prev.find((m) => m._id === message._id);
+          // Evitar duplicados
+          const exists = prev.find((m) => 
+            m._id === message._id || 
+            (m.timestamp === message.timestamp && m.content === message.content)
+          );
           if (exists) return prev;
           return [...prev, message];
         });
       }
     });
 
-    socket.on("typing", ({ chatId, username }) => {
-      if (activeChat?._id === chatId && username !== user.username) {
+    // Manejar typing
+    socket.on("typing", ({ chatId, userId }) => {
+      if (activeChat?._id === chatId && userId !== user._id) {
         setTypingUsers((prev) => {
-          if (!prev.includes(username)) return [...prev, username];
+          if (!prev.includes(userId)) return [...prev, userId];
           return prev;
         });
 
         setTimeout(() => {
-          setTypingUsers((prev) => prev.filter((u) => u !== username));
-        }, 2000); // desaparece después de 2s
+          setTypingUsers((prev) => prev.filter((id) => id !== userId));
+        }, 2000);
       }
     });
 
     socket.on("notification", ({ title, body }) => {
-      // Puedes mostrar alerta o toast
-      alert(`${title}: ${body}`);
+      console.log("Notificación:", title, body);
     });
 
-    return () => socket.disconnect();
-  }, [activeChat, user.username]);
+    return () => {
+      socket.disconnect();
+    };
+  }, [user, activeChat]);
 
   // Cargar usuarios disponibles
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await chatAPI.getAllUsers();
-      if (res.success) setAvailableUsers(res.users.filter((u) => u._id !== user._id));
+      try {
+        const res = await chatAPI.getAllUsers();
+        if (res.success) setAvailableUsers(res.users.filter((u) => u._id !== user._id));
+      } catch (err) {
+        console.error("Error cargando usuarios:", err);
+      }
     };
-    fetchUsers();
-  }, [user._id]);
+    if (user) fetchUsers();
+  }, [user]);
 
   // Cargar chats del usuario
   useEffect(() => {
@@ -465,118 +497,158 @@ export function ChatPage() {
         const res = await chatAPI.getUserChats();
         if (res.success) setChats(res.chats);
       } catch (err) {
-        console.error(err);
+        console.error("Error cargando chats:", err);
       }
     };
-    loadChats();
-  }, []);
+    if (user) loadChats();
+  }, [user]);
 
   // Abrir chat
   const openChat = async (chat) => {
-    setActiveChat(chat);
     try {
+      setActiveChat(chat);
       const res = await chatAPI.getChatMessages(chat._id);
-      if (res.success) setMessages(res.chat.messages || []);
-      socketRef.current?.emit("joinChat", chat._id);
+      if (res.success) {
+        setMessages(res.chat.messages || []);
+        // Unirse a la sala del chat
+        socketRef.current?.emit("joinChat", chat._id);
+      }
     } catch (err) {
-      console.error(err);
+      console.error("Error abriendo chat:", err);
     }
   };
 
   // Iniciar nuevo chat
   const startChat = async (participantId) => {
-    const res = await chatAPI.createChat(participantId);
-    if (res.success) openChat(res.chat);
+    try {
+      const res = await chatAPI.createChat(participantId);
+      if (res.success) {
+        setChats(prev => [res.chat, ...prev]);
+        openChat(res.chat);
+      }
+    } catch (err) {
+      console.error("Error creando chat:", err);
+    }
   };
 
   // Enviar mensaje
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!text.trim() || !activeChat) return;
+    if (!text.trim() || !activeChat || !isConnected) return;
 
-    const newMessage = { sender: user._id, content: text, timestamp: new Date() };
-    setMessages((prev) => [...prev, { ...newMessage, sender: { username: user.username } }]);
-    setText("");
-
-    socketRef.current?.emit("sendMessage", { chatId: activeChat._id, message: newMessage });
+    try {
+      // Enviar mensaje via HTTP API
+      const res = await chatAPI.sendMessage(activeChat._id, text);
+      
+      if (res.success) {
+        setText("");
+        // El socket se encargará de actualizar la interfaz via el evento "newMessage"
+      }
+    } catch (err) {
+      console.error("Error enviando mensaje:", err);
+    }
   };
 
   // Emitir typing
   const handleTyping = () => {
-    if (activeChat) {
-      socketRef.current?.emit("typing", { chatId: activeChat._id, userId: user._id, username: user.username });
+    if (activeChat && isConnected) {
+      socketRef.current?.emit("typing", { chatId: activeChat._id });
     }
   };
 
   if (!user) return <div>Inicia sesión para usar el chat</div>;
 
   return (
-    <div style={{ display: "flex", gap: 10 }}>
+    <div style={{ display: "flex", gap: 10, height: "80vh" }}>
       {/* Sidebar chats */}
-      <aside style={{ width: 240, borderRight: "1px solid #ccc" }}>
-        <h3>Chats</h3>
+      <aside style={{ width: 240, borderRight: "1px solid #ccc", overflowY: "auto" }}>
+        <h3>Chats {isConnected ? "🟢" : "🔴"}</h3>
         {chats.map((c) => {
           const other = c.participants.find((p) => p._id !== user._id);
           return (
             <div
               key={c._id}
               onClick={() => openChat(c)}
-              style={{ cursor: "pointer", padding: 5, borderBottom: "1px solid #eee" }}
+              style={{ 
+                cursor: "pointer", 
+                padding: 10, 
+                borderBottom: "1px solid #eee",
+                backgroundColor: activeChat?._id === c._id ? "#f0f0f0" : "transparent"
+              }}
             >
-              {other?.username || "Chat"}
+              <div><strong>{other?.username || "Usuario"}</strong></div>
+              <div style={{ fontSize: "0.8em", color: "#666" }}>
+                {c.lastMessageContent || "Sin mensajes"}
+              </div>
             </div>
           );
         })}
       </aside>
 
       {/* Usuarios disponibles */}
-      <div style={{ width: 200 }}>
+      <div style={{ width: 200, overflowY: "auto" }}>
         <h3>Usuarios disponibles</h3>
         {availableUsers.map((u) => (
-          <div key={u._id} style={{ display: "flex", justifyContent: "space-between" }}>
+          <div key={u._id} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0" }}>
             <span>{u.username}</span>
-            <button onClick={() => startChat(u._id)}>Iniciar chat</button>
+            <button onClick={() => startChat(u._id)}>Chat</button>
           </div>
         ))}
       </div>
 
       {/* Chat principal */}
-      <main style={{ flex: 1, padding: 10 }}>
+      <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {activeChat ? (
           <>
-            <div style={{ height: 400, overflowY: "auto", border: "1px solid #ddd", padding: 5 }}>
+            <div style={{ 
+              flex: 1, 
+              overflowY: "auto", 
+              border: "1px solid #ddd", 
+              padding: 10,
+              marginBottom: 10 
+            }}>
               {messages.map((m, i) => (
-                <div key={i}>
-                  <b>{m.sender?.username || "anon"}</b>: {m.content}
+                <div key={m._id || i} style={{ marginBottom: 5 }}>
+                  <b>{m.sender?.username || "Usuario"}</b>: {m.content}
+                  <span style={{ fontSize: "0.8em", color: "#666", marginLeft: 10 }}>
+                    {new Date(m.timestamp).toLocaleTimeString()}
+                  </span>
                 </div>
               ))}
+              
               {typingUsers.length > 0 && (
                 <div style={{ fontStyle: "italic", color: "gray" }}>
-                  {typingUsers.join(", ")} está escribiendo...
+                  Escribiendo...
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} style={{ marginTop: 10 }}>
+            <form onSubmit={sendMessage} style={{ display: "flex", gap: 10 }}>
               <input
                 value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyPress={handleTyping}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  handleTyping();
+                }}
                 placeholder="Escribe un mensaje..."
-                style={{ width: "80%" }}
+                style={{ flex: 1 }}
+                disabled={!isConnected}
               />
-              <button type="submit">Enviar</button>
+              <button type="submit" disabled={!text.trim() || !isConnected}>
+                Enviar
+              </button>
             </form>
           </>
         ) : (
-          <div>Selecciona un chat</div>
+          <div style={{ textAlign: "center", padding: 20 }}>
+            Selecciona un chat para comenzar
+          </div>
         )}
       </main>
     </div>
   );
 }
-
 
 /* ------------------ Export default (vacío) ------------------ */
 export default null;
