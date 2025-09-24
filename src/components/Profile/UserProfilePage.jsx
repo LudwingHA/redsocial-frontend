@@ -50,7 +50,7 @@ export function UserProfilePage() {
     <div className="max-w-4xl mx-auto px-6 py-8 space-y-8">
       {/* Header del perfil con gradiente */}
       {userInfo && (
-        <div className="bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden">
+        <div className="bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-500 rounded-3xl shadow-2xl p-8 text-white relative overflow-hidden dark:from-purple-950 dark:via-blue-900 dark:to-cyan-800 transition-colors duration-300">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
           

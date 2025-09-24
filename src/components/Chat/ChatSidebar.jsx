@@ -43,7 +43,7 @@ export function ChatSidebar({ chats, activeChat, onChatSelect, currentUser, load
   }
 
 return (
-  <div className="divide-y divide-gray-100/50">
+  <div className="divide-y divide-gray-100/50 dark:divide-gray-700/50">
     {chats.map((chat) => {
       const otherUser = chat.participants.find(p => p._id !== currentUser._id);
       const isActive = activeChat?._id === chat._id;
@@ -54,8 +54,8 @@ return (
           onClick={() => onChatSelect(chat)}
           className={`p-4 cursor-pointer transition-all duration-300 ${
             isActive
-              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-r-4 border-blue-500'
-              : 'hover:bg-gray-50/80'
+              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 border-r-4 border-blue-500 dark:border-blue-400'
+              : 'hover:bg-gray-50/80 dark:hover:bg-gray-700/50'
           }`}
         >
           <div className="flex items-center space-x-4">
@@ -63,25 +63,25 @@ return (
               <img
                 src={`${URL_SERVER}${otherUser?.avatar}`}
                 alt={otherUser?.username}
-                className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
+                className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md"
               />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 dark:bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-gray-800 truncate text-lg">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-lg">
                   {otherUser?.username || 'Usuario'}
                 </h3>
                 {chat.lastMessage && (
-                  <span className="text-xs text-gray-500 flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-full">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                     <FiClock size={12} />
                     <span className="font-medium">{formatLastMessageTime(chat.lastMessage)}</span>
                   </span>
                 )}
               </div>
               
-              <p className="text-sm text-gray-600 truncate leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-300 truncate leading-relaxed">
                 {truncateText(chat.lastMessageContent)}
               </p>
             </div>

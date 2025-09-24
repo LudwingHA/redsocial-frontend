@@ -109,61 +109,60 @@ export function ChatPage() {
       </div>
     );
   }
-
-  return (
-    <div className="flex h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-2xl shadow-2xl overflow-hidden border border-white/50">
-      {/* Sidebar izquierdo - Chats */}
-      <div className="w-96 bg-white/80 backdrop-blur-sm border-r border-gray-200/50 flex flex-col">
-        {/* Header del sidebar */}
-        <div className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-white to-gray-50/80">
-          <div className="relative">
-            <FiSearch
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Buscar chats o usuarios..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 backdrop-blur-sm transition-all duration-300"
-            />
-          </div>
-        </div>
-
-        {/* Lista de chats */}
-        <div className="flex-1 overflow-y-auto">
-          <ChatSidebar
-            chats={filteredChats}
-            activeChat={activeChat}
-            onChatSelect={openChat}
-            currentUser={user}
-            loading={loading}
+return (
+  <div className="flex h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 rounded-2xl shadow-2xl overflow-hidden border border-white/50 dark:border-gray-700/50 transition-colors duration-300">
+    {/* Sidebar izquierdo - Chats */}
+    <div className="w-96 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-colors duration-300">
+      {/* Header del sidebar */}
+      <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80 transition-colors duration-300">
+        <div className="relative">
+          <FiSearch
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
+            size={20}
+          />
+          <input
+            type="text"
+            placeholder="Buscar chats o usuarios..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           />
         </div>
       </div>
 
-      {/* Ventana principal de chat o lista de usuarios */}
-      <div className="flex-1 flex flex-col bg-white/60 backdrop-blur-sm">
-        {activeChat ? (
-          <ChatWindow
-            activeChat={activeChat}
-            messages={messages}
-            setMessages={setMessages}
-            currentUser={user}
-            socket={socket}
-            isConnected={isConnected}
-            waitForConnection={waitForConnection}
-          />
-        ) : (
-          <UsersList
-            users={filteredUsers}
-            onUserSelect={startChat}
-            searchTerm={searchTerm}
-          />
-        )}
+      {/* Lista de chats */}
+      <div className="flex-1 overflow-y-auto">
+        <ChatSidebar
+          chats={filteredChats}
+          activeChat={activeChat}
+          onChatSelect={openChat}
+          currentUser={user}
+          loading={loading}
+        />
       </div>
     </div>
-  );
+
+    {/* Ventana principal de chat o lista de usuarios */}
+    <div className="flex-1 flex flex-col bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm transition-colors duration-300">
+      {activeChat ? (
+        <ChatWindow
+          activeChat={activeChat}
+          messages={messages}
+          setMessages={setMessages}
+          currentUser={user}
+          socket={socket}
+          isConnected={isConnected}
+          waitForConnection={waitForConnection}
+        />
+      ) : (
+        <UsersList
+          users={filteredUsers}
+          onUserSelect={startChat}
+          searchTerm={searchTerm}
+        />
+      )}
+    </div>
+  </div>
+);
 }
 export default ChatPage

@@ -97,9 +97,9 @@ export function ProfileEditPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-gradient-to-b from-white/80 to-gray-50/50 dark:from-gray-800/80 dark:to-gray-900/50 transition-colors duration-300">
         {/* Header del perfil */}
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
+        <div className="p-4 text-white bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 dark:from-purple-950 dark:via-blue-900 dark:to-cyan-800 shadow-lg transition-colors duration-300">
           <h2 className="text-2xl font-bold mb-2">Editar Perfil</h2>
           <p className="opacity-90">Actualiza tu información personal</p>
         </div>
@@ -134,7 +134,7 @@ export function ProfileEditPage() {
                 />
               </label>
             </div>
-            <p className="text-gray-600 mt-2">Haz clic en la imagen para cambiar el avatar</p>
+            <p className="text-gray-600 mt-2 dark:text-amber-50">Haz clic en la imagen para cambiar el avatar</p>
           </div>
 
           {/* Formulario */}
@@ -142,7 +142,7 @@ export function ProfileEditPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Username */}
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                   <FiUser size={16} />
                   <span>Nombre de usuario</span>
                 </label>
@@ -151,14 +151,14 @@ export function ProfileEditPage() {
                   name="username"
                   value={form.username}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
                   required
                 />
               </div>
 
               {/* Email */}
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                   <FiMail size={16} />
                   <span>Correo electrónico</span>
                 </label>
@@ -167,14 +167,14 @@ export function ProfileEditPage() {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
                   required
                 />
               </div>
 
               {/* Teléfono */}
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                   <FiPhone size={16} />
                   <span>Teléfono</span>
                 </label>
@@ -183,13 +183,13 @@ export function ProfileEditPage() {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
                 />
               </div>
 
               {/* Edad */}
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                   <FiCalendar size={16} />
                   <span>Edad</span>
                 </label>
@@ -200,13 +200,13 @@ export function ProfileEditPage() {
                   onChange={handleChange}
                   min="1"
                   max="120"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
                 />
               </div>
 
               {/* Ubicación */}
               <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                   <FiMapPin size={16} />
                   <span>Ubicación</span>
                 </label>
@@ -215,14 +215,14 @@ export function ProfileEditPage() {
                   name="location"
                   value={form.location}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
                 />
               </div>
             </div>
 
             {/* Bio */}
             <div className="space-y-2">
-              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
                 <FiUser size={16} />
                 <span>Biografía</span>
               </label>
@@ -232,7 +232,7 @@ export function ProfileEditPage() {
                 onChange={handleChange}
                 rows={4}
                 placeholder="Cuéntanos algo sobre ti..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none dark:text-amber-50"
                 maxLength={500}
               />
               <p className="text-xs text-gray-500 text-right">
