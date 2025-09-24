@@ -109,8 +109,7 @@ export function PostCard({ post }) {
 
           </div>
           <div>
-            <h3 className="font-bold text-gray-800">{localPost.author.username}</h3>
-            <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />
+            <h3 className="font-bold text-gray-80 flex items-center gap-3 ">{localPost.author.username}{user.id != localPost.author._id ? (<FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />) : ""}</h3>
             <p className="text-sm text-gray-500">{formatDate(localPost.createdAt)}</p>
           </div>
         </div>

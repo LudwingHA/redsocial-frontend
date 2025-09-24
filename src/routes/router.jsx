@@ -1,3 +1,5 @@
+// router.jsx
+import React from "react";
 import { createBrowserRouter } from "react-router-dom";
 import PrivateRoute from "./PrivateRoute";
 import PublicRoute from "./PublicRoute";
@@ -6,25 +8,28 @@ import PublicRoute from "./PublicRoute";
 import Register from "../auth/pages/Register";
 import Login from "../auth/pages/Login";
 
-import App from "../App";
+import { AppLayout } from "../components/layout/AppLayout";
+import { FeedPage } from "../components/Feed/FeedPage";
+import { ChatPage } from "../components/Chat/ChatPage";
+import { ProfileEditPage } from "../components/Profile/ProfileEditPage";
+import { NotificationsPage } from "../components/Notification/NotificationsPage";
 import { UserProfilePage } from "../components/Profile/UserProfilePage";
-
 
 export const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <PrivateRoute>
-        <App></App>
+        <AppLayout />
       </PrivateRoute>
     ),
-  },{
-    path: "/profile/:userId", // <- Ruta dinámica para perfil de usuario
-    element: (
-      <PrivateRoute>
-        <UserProfilePage />
-      </PrivateRoute>
-    ),
+    children: [
+      { index: true, element: <FeedPage /> },               
+      { path: "chat", element: <ChatPage /> },               
+      { path: "profile/:userId", element: <UserProfilePage /> }, 
+      { path: "notifications", element: <NotificationsPage /> },
+      {path: "settings", element: <ProfileEditPage></ProfileEditPage>} 
+    ],
   },
   {
     path: "/login",
