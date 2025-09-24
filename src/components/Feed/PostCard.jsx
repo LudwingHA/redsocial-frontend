@@ -6,6 +6,8 @@ import { postAPI } from '../../api/api';
 import { CommentList } from './CommentList';
 import { PostMenu } from './PostMenu';
 import { URL_SERVER } from '../../api/url';
+import { FollowButton } from '../FollowButton';
+import { Link } from 'react-router-dom';
 
 export function PostCard({ post }) {
   const [localPost, setLocalPost] = useState({
@@ -96,15 +98,19 @@ export function PostCard({ post }) {
       <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-white">
         <div className="flex items-center space-x-4">
           <div className="relative">
-            <img
-              src={`${URL_SERVER}${localPost.author.avatar}`}
-              alt={localPost.author.username}
-              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
-            />
+            <Link to={`/profile/${localPost.author._id}`}> 
+              <img
+                src={`${URL_SERVER}${localPost.author.avatar}`}
+                alt={localPost.author.username}
+                className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300"
+              />
+            </Link>
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full border-2 border-white"></div>
+
           </div>
           <div>
             <h3 className="font-bold text-gray-800">{localPost.author.username}</h3>
+            <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />
             <p className="text-sm text-gray-500">{formatDate(localPost.createdAt)}</p>
           </div>
         </div>
@@ -138,11 +144,10 @@ export function PostCard({ post }) {
         <button
           onClick={handleLike}
           disabled={!user || isLiking}
-          className={`flex-1 flex items-center justify-center py-4 space-x-2 transition-all duration-300 ${
-            hasLiked 
-              ? 'bg-gradient-to-r from-red-50 to-pink-50 text-red-500 hover:text-red-600' 
+          className={`flex-1 flex items-center justify-center py-4 space-x-2 transition-all duration-300 ${hasLiked
+              ? 'bg-gradient-to-r from-red-50 to-pink-50 text-red-500 hover:text-red-600'
               : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-          } disabled:opacity-50`}
+            } disabled:opacity-50`}
         >
           <FiHeart size={22} fill={hasLiked ? 'currentColor' : 'none'} />
           <span className="font-medium">Me gusta</span>

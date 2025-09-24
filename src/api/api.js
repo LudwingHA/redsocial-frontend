@@ -143,6 +143,20 @@ export const userAPI = {
     const response = await api.post(`/users/${userId}/follow`);
     return response.data;
   },
+  getFollowing: async (userId) => {
+    const response = await api.get(`/users/${userId}/following`);
+    return response.data; // devuelve array de usuarios
+  },
+
+  followUser: async (userId) => {
+    const response = await api.post(`/users/${userId}/follow`);
+    return response.data;
+  },
+
+  unfollowUser: async (userId) => {
+    const response = await api.post(`/users/${userId}/unfollow`);
+    return response.data;
+  },
 };
 
 // Servicios de posts

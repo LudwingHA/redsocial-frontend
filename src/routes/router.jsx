@@ -7,6 +7,7 @@ import Register from "../auth/pages/Register";
 import Login from "../auth/pages/Login";
 
 import App from "../App";
+import { UserProfilePage } from "../components/Profile/UserProfilePage";
 
 
 export const router = createBrowserRouter([
@@ -15,6 +16,13 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <App></App>
+      </PrivateRoute>
+    ),
+  },{
+    path: "/profile/:userId", // <- Ruta dinámica para perfil de usuario
+    element: (
+      <PrivateRoute>
+        <UserProfilePage />
       </PrivateRoute>
     ),
   },
