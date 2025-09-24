@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiWifi, FiWifiOff, FiVideo, FiPhone, FiMoreVertical } from 'react-icons/fi';
+import { URL_SERVER } from '../../api/url';
 
 export function ChatHeader({ user, isConnected }) {
   if (!user) {
@@ -20,7 +21,7 @@ return (
       <div className="flex items-center space-x-4">
         <div className="relative">
           <img
-            src={`http://localhost:5000${user.avatar}`}
+            src={`${URL_SERVER}${user.avatar}`}
             alt={user.username}
             className="w-14 h-14 rounded-full object-cover border-4 border-white/30 shadow-lg"
           />

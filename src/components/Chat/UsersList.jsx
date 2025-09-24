@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiUserPlus, FiUsers } from 'react-icons/fi';
+import { URL_SERVER } from '../../api/url';
 
 export function UsersList({ users, onUserSelect, searchTerm }) {
   if (searchTerm && users.length === 0) {
@@ -43,7 +44,7 @@ return (
         >
           <div className="flex items-center space-x-4">
             <img
-              src={`http://localhost:5000${user.avatar}`}
+              src={`${URL_SERVER}${user.avatar}`}
               alt={user.username}
               className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
             />

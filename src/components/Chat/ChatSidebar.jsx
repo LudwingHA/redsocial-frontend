@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiMessageSquare, FiClock } from 'react-icons/fi';
+import { URL_SERVER } from '../../api/url';
 
 export function ChatSidebar({ chats, activeChat, onChatSelect, currentUser, loading }) {
   const formatLastMessageTime = (timestamp) => {
@@ -60,7 +61,7 @@ return (
           <div className="flex items-center space-x-4">
             <div className="relative">
               <img
-                src={`http://localhost:5000${otherUser?.avatar}`}
+                src={`${URL_SERVER}${otherUser?.avatar}`}
                 alt={otherUser?.username}
                 className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
               />

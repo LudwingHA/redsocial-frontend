@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { FiCheck, FiCheckCircle } from 'react-icons/fi';
+import { URL_SERVER } from '../../api/url';
 
 export function MessageList({ messages, currentUser, typingUsers }) {
   const messagesEndRef = useRef(null);
@@ -35,7 +36,7 @@ return (
           {/* Avatar del remitente (solo para mensajes de otros) */}
           {showAvatar && (
             <img
-              src={`http://localhost:5000${message.sender.avatar}`}
+              src={`${URL_SERVER}${message.sender.avatar}`}
               alt={message.sender.username}
               className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md"
             />

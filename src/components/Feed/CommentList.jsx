@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiSend, FiUser } from 'react-icons/fi';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useSocket } from '../../auth/context/SocketContext';
+import { URL_SERVER } from '../../api/url';
 
 export function CommentList({ comments, onAdd, postId, postAuthorId }) {
   const [text, setText] = useState('');
@@ -49,7 +50,7 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
             <div className="flex-shrink-0">
               {comment.author?.avatar ? (
                 <img
-                  src={`http://localhost:5000${comment.author.avatar}`}
+                  src={`${URL_SERVER}${comment.author.avatar}`}
                   alt={comment.author.username}
                   className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                 />
@@ -89,7 +90,7 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
         <form onSubmit={handleAdd} className="flex space-x-3">
           {user.avatar ? (
             <img
-              src={`http://localhost:5000${user.avatar}`}
+              src={`${URL_SERVER}${user.avatar}`}
               alt={user.username}
               className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md"
             />

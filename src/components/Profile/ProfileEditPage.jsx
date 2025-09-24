@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiSave, FiCamera } from 'react-icons/fi';
 import { useAuth } from '../../auth/context/AuthContext';
 import { userAPI } from '../../api/api';
+import { URL_SERVER } from '../../api/url';
 
 export function ProfileEditPage() {
   const { user, updateUser } = useAuth();
@@ -28,7 +29,7 @@ export function ProfileEditPage() {
         age: user.age || '',
         location: user.location || '',
       });
-      setAvatarPreview(`http://localhost:5000${user.avatar}`);
+      setAvatarPreview(`${URL_SERVER}${user.avatar}`);
     }
   }, [user]);
 
@@ -82,7 +83,7 @@ export function ProfileEditPage() {
     } catch (err) {
       console.error(err);
       showMessage('error', 'Error al actualizar el avatar');
-      setAvatarPreview(`http://localhost:5000${user.avatar}`); // Revertir preview
+      setAvatarPreview(`${URL_SERVER}${user.avatar}`); // Revertir preview
     }
   };
 

@@ -5,6 +5,7 @@ import { useSocket } from '../../auth/context/SocketContext';
 import { postAPI } from '../../api/api';
 import { CommentList } from './CommentList';
 import { PostMenu } from './PostMenu';
+import { URL_SERVER } from '../../api/url';
 
 export function PostCard({ post }) {
   const [localPost, setLocalPost] = useState(post);
@@ -84,7 +85,7 @@ export function PostCard({ post }) {
         <div className="flex items-center space-x-4">
           <div className="relative">
             <img
-              src={`http://localhost:5000${localPost.author.avatar}`}
+              src={`${URL_SERVER}${localPost.author.avatar}`}
               alt={localPost.author.username}
               className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
             />
@@ -105,7 +106,7 @@ export function PostCard({ post }) {
         {localPost.image && (
           <div className="mt-4 rounded-xl overflow-hidden shadow-lg">
             <img
-              src={`http://localhost:5000${localPost.image}`}
+              src={`${URL_SERVER}${localPost.image}`}
               alt="Post content"
               className="w-full h-auto max-h-96 object-cover transition-transform duration-300 hover:scale-105"
             />

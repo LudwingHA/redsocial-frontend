@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiImage, FiSend } from 'react-icons/fi';
 import { useAuth } from '../../auth/context/AuthContext';
 import { postAPI } from '../../api/api';
+import { URL_SERVER } from '../../api/url';
 
 export function PostComposer({ onPosted }) {
   const { user } = useAuth();
@@ -52,7 +53,7 @@ export function PostComposer({ onPosted }) {
       <form onSubmit={submit} className="space-y-4">
         <div className="flex items-start space-x-4">
           <img
-            src={`http://localhost:5000${user.avatar}`}
+            src={`${URL_SERVER}${user.avatar}`}
             alt={user.username}
             className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
           />
