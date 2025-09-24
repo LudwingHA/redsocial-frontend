@@ -14,51 +14,50 @@ export function ChatHeader({ user, isConnected }) {
       </div>
     );
   }
-
-  return (
-    <div className="border-b border-gray-200 p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="relative">
-            <img
-              src={`http://localhost:5000${user.avatar}`}
-              alt={user.username}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <div
-              className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                isConnected ? 'bg-green-500' : 'bg-gray-400'
-              }`}
-            />
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800">{user.username}</h3>
-            <div className="flex items-center space-x-1">
-              {isConnected ? (
-                <FiWifi size={14} className="text-green-500" />
-              ) : (
-                <FiWifiOff size={14} className="text-gray-400" />
-              )}
-              <span className={`text-sm ${isConnected ? 'text-green-600' : 'text-gray-500'}`}>
-                {isConnected ? 'En línea' : 'Desconectado'}
-              </span>
-            </div>
-          </div>
+return (
+  <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-6 shadow-lg">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-4">
+        <div className="relative">
+          <img
+            src={`http://localhost:5000${user.avatar}`}
+            alt={user.username}
+            className="w-14 h-14 rounded-full object-cover border-4 border-white/30 shadow-lg"
+          />
+          <div
+            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-3 border-white ${
+              isConnected ? 'bg-green-400' : 'bg-gray-400'
+            } shadow-md`}
+          />
         </div>
-
-        <div className="flex items-center space-x-2">
-          <button className="p-2 text-gray-500 hover:text-blue-500 transition-colors">
-            <FiVideo size={20} />
-          </button>
-          <button className="p-2 text-gray-500 hover:text-blue-500 transition-colors">
-            <FiPhone size={20} />
-          </button>
-          <button className="p-2 text-gray-500 hover:text-gray-700 transition-colors">
-            <FiMoreVertical size={20} />
-          </button>
+        
+        <div>
+          <h3 className="text-xl font-bold text-white">{user.username}</h3>
+          <div className="flex items-center space-x-2">
+            {isConnected ? (
+              <FiWifi size={16} className="text-green-300" />
+            ) : (
+              <FiWifiOff size={16} className="text-gray-300" />
+            )}
+            <span className={`text-sm font-medium ${isConnected ? 'text-green-200' : 'text-gray-300'}`}>
+              {isConnected ? 'En línea' : 'Desconectado'}
+            </span>
+          </div>
         </div>
       </div>
+
+      <div className="flex items-center space-x-3">
+        <button className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20">
+          <FiVideo size={22} />
+        </button>
+        <button className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20">
+          <FiPhone size={22} />
+        </button>
+        <button className="p-3 bg-white/20 hover:bg-white/30 text-white rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20">
+          <FiMoreVertical size={22} />
+        </button>
+      </div>
     </div>
-  );
+  </div>
+);
 }

@@ -25,42 +25,43 @@ export function UsersList({ users, onUserSelect, searchTerm }) {
       </div>
     );
   }
-
-  return (
-    <div className="h-full overflow-y-auto">
-      <div className="p-4 border-b border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-800">Usuarios disponibles</h3>
-        <p className="text-sm text-gray-600">Selecciona un usuario para comenzar a chatear</p>
-      </div>
-      
-      <div className="divide-y divide-gray-100">
-        {users.map((user) => (
-          <div
-            key={user._id}
-            onClick={() => onUserSelect(user._id)}
-            className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center space-x-3">
-              <img
-                src={`http://localhost:5000${user.avatar}`}
-                alt={user.username}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-              
-              <div className="flex-1">
-                <h4 className="font-semibold text-gray-800">{user.username}</h4>
-                {user.bio && (
-                  <p className="text-sm text-gray-600 truncate">{user.bio}</p>
-                )}
-              </div>
-              
-              <button className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors">
-                <FiUserPlus size={16} />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+return (
+  <div className="h-full overflow-y-auto bg-gradient-to-b from-white/80 to-gray-50/50">
+    <div className="p-6 border-b border-gray-200/50 bg-gradient-to-r from-white to-gray-50/80">
+      <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        Usuarios disponibles
+      </h3>
+      <p className="text-sm text-gray-600 mt-1">Selecciona un usuario para comenzar a chatear</p>
     </div>
-  );
+    
+    <div className="divide-y divide-gray-100/50">
+      {users.map((user) => (
+        <div
+          key={user._id}
+          onClick={() => onUserSelect(user._id)}
+          className="p-4 cursor-pointer hover:bg-gradient-to-r from-blue-50/50 to-purple-50/50 transition-all duration-300 group"
+        >
+          <div className="flex items-center space-x-4">
+            <img
+              src={`http://localhost:5000${user.avatar}`}
+              alt={user.username}
+              className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300"
+            />
+            
+            <div className="flex-1">
+              <h4 className="font-bold text-gray-800 text-lg">{user.username}</h4>
+              {user.bio && (
+                <p className="text-sm text-gray-600 leading-relaxed">{user.bio}</p>
+              )}
+            </div>
+            
+            <button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white p-3 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110">
+              <FiUserPlus size={18} />
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 }

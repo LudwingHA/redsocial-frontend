@@ -98,64 +98,64 @@ export function ChatWindow({ activeChat, messages, setMessages, currentUser, soc
 
   const otherUser = activeChat.participants.find(p => p._id !== currentUser._id);
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Header del chat */}
-      <ChatHeader user={otherUser} isConnected={isConnected} />
-      
-      {/* Lista de mensajes */}
-      <div className="flex-1 overflow-hidden">
-        <MessageList
-          messages={messages}
-          currentUser={currentUser}
-          typingUsers={typingUsers}
-        />
-      </div>
-
-      {/* Input de mensaje */}
-      <div className="border-t border-gray-200 p-4">
-        <form onSubmit={sendMessage} className="flex space-x-3">
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <FiPaperclip size={20} />
-            </button>
-            <button
-              type="button"
-              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <FiSmile size={20} />
-            </button>
-          </div>
-          
-          <input
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value);
-              handleTyping();
-            }}
-            placeholder="Escribe un mensaje..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={!isConnected || sending}
-          />
-          
-          <button
-            type="submit"
-            disabled={!text.trim() || !isConnected || sending}
-            className="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FiSend size={18} />
-          </button>
-        </form>
-        
-        {!isConnected && (
-          <p className="text-sm text-red-500 mt-2 text-center">
-            Conectando al chat...
-          </p>
-        )}
-      </div>
+return (
+  <div className="flex flex-col h-full bg-gradient-to-b from-white/80 to-gray-50/50">
+    {/* Header del chat */}
+    <ChatHeader user={otherUser} isConnected={isConnected} />
+    
+    {/* Lista de mensajes */}
+    <div className="flex-1 overflow-hidden bg-gradient-to-b from-transparent to-blue-50/20">
+      <MessageList
+        messages={messages}
+        currentUser={currentUser}
+        typingUsers={typingUsers}
+      />
     </div>
-  );
+
+    {/* Input de mensaje */}
+    <div className="border-t border-gray-200/50 p-6 bg-white/90 backdrop-blur-sm">
+      <form onSubmit={sendMessage} className="flex space-x-4 items-center">
+        <div className="flex space-x-3">
+          <button
+            type="button"
+            className="p-3 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300"
+          >
+            <FiPaperclip size={22} />
+          </button>
+          <button
+            type="button"
+            className="p-3 text-gray-500 hover:text-blue-500 hover:bg-blue-50 rounded-xl transition-all duration-300"
+          >
+            <FiSmile size={22} />
+          </button>
+        </div>
+        
+        <input
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            handleTyping();
+          }}
+          placeholder="Escribe un mensaje..."
+          className="flex-1 px-6 py-4 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 backdrop-blur-sm transition-all duration-300"
+          disabled={!isConnected || sending}
+        />
+        
+        <button
+          type="submit"
+          disabled={!text.trim() || !isConnected || sending}
+          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white p-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+        >
+          <FiSend size={20} />
+        </button>
+      </form>
+      
+      {!isConnected && (
+        <p className="text-sm text-red-500 mt-3 text-center font-medium bg-red-50/50 py-2 rounded-lg">
+          🔄 Conectando al chat...
+        </p>
+      )}
+    </div>
+  </div>
+);
 }

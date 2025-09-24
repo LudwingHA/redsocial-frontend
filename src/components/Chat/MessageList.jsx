@@ -20,77 +20,79 @@ export function MessageList({ messages, currentUser, typingUsers }) {
     if (!previousMsg) return false;
     return currentMsg.sender._id === previousMsg.sender._id;
   };
+return (
+  <div className="h-full overflow-y-auto p-6 space-y-3 bg-gradient-to-b from-transparent to-blue-50/20">
+    {messages.map((message, index) => {
+      const isOwn = message.sender._id === currentUser._id;
+      const isConsecutive = isConsecutiveMessage(message, messages[index - 1]);
+      const showAvatar = !isOwn && !isConsecutive;
 
-  return (
-    <div className="h-full overflow-y-auto p-4 space-y-1">
-      {messages.map((message, index) => {
-        const isOwn = message.sender._id === currentUser._id;
-        const isConsecutive = isConsecutiveMessage(message, messages[index - 1]);
-        const showAvatar = !isOwn && !isConsecutive;
+      return (
+        <div
+          key={message._id}
+          className={`flex items-end space-x-3 ${isOwn ? 'justify-end' : 'justify-start'}`}
+        >
+          {/* Avatar del remitente (solo para mensajes de otros) */}
+          {showAvatar && (
+            <img
+              src={`http://localhost:5000${message.sender.avatar}`}
+              alt={message.sender.username}
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md"
+            />
+          )}
+          
+          {/* Espacio para alinear cuando no hay avatar */}
+          {!isOwn && !showAvatar && <div className="w-10" />}
 
-        return (
+          {/* Mensaje */}
           <div
-            key={message._id}
-            className={`flex items-end space-x-2 ${isOwn ? 'justify-end' : 'justify-start'}`}
+            className={`max-w-md px-5 py-3 rounded-2xl shadow-sm ${
+              isOwn
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-none'
+                : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 rounded-bl-none border border-gray-200/50'
+            } ${message.isSending ? 'opacity-70' : ''} transition-all duration-300`}
           >
-            {/* Avatar del remitente (solo para mensajes de otros) */}
-            {showAvatar && (
-              <img
-                src={`http://localhost:5000${message.sender.avatar}`}
-                alt={message.sender.username}
-                className="w-6 h-6 rounded-full object-cover flex-shrink-0"
-              />
+            {/* Nombre del remitente (solo primer mensaje de la secuencia) */}
+            {!isOwn && showAvatar && (
+              <p className="text-xs font-bold mb-2 text-gray-600">{message.sender.username}</p>
             )}
             
-            {/* Espacio para alinear cuando no hay avatar */}
-            {!isOwn && !showAvatar && <div className="w-6" />}
-
-            {/* Mensaje */}
-            <div
-              className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                isOwn
-                  ? 'bg-blue-500 text-white rounded-br-none'
-                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
-              } ${message.isSending ? 'opacity-70' : ''}`}
-            >
-              {/* Nombre del remitente (solo primer mensaje de la secuencia) */}
-              {!isOwn && showAvatar && (
-                <p className="text-xs font-semibold mb-1">{message.sender.username}</p>
-              )}
-              
-              <p className="break-words">{message.content}</p>
-              
-              {/* Timestamp y estado */}
-              <div className={`flex items-center space-x-1 mt-1 text-xs ${
-                isOwn ? 'text-blue-100' : 'text-gray-500'
-              }`}>
-                <span>{formatMessageTime(message.timestamp)}</span>
-                {isOwn && (
-                  message.isSending ? (
+            <p className="break-words leading-relaxed">{message.content}</p>
+            
+            {/* Timestamp y estado */}
+            <div className={`flex items-center space-x-2 mt-2 text-xs ${
+              isOwn ? 'text-blue-100' : 'text-gray-500'
+            }`}>
+              <span className="font-medium">{formatMessageTime(message.timestamp)}</span>
+              {isOwn && (
+                message.isSending ? (
+                  <div className="flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
                     <FiCheck size={12} />
-                  ) : (
-                    <FiCheckCircle size={12} className="text-green-300" />
-                  )
-                )}
-              </div>
+                  </div>
+                ) : (
+                  <FiCheckCircle size={14} className="text-green-300" />
+                )
+              )}
             </div>
           </div>
-        );
-      })}
-
-      {/* Indicador de typing */}
-      {typingUsers.length > 0 && (
-        <div className="flex items-center space-x-2 text-gray-500 italic">
-          <div className="flex space-x-1">
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          </div>
-          <span className="text-sm">Escribiendo...</span>
         </div>
-      )}
+      );
+    })}
 
-      <div ref={messagesEndRef} />
-    </div>
-  );
+    {/* Indicador de typing */}
+    {typingUsers.length > 0 && (
+      <div className="flex items-center space-x-3 text-gray-500 italic bg-white/50 rounded-2xl p-4 mx-4">
+        <div className="flex space-x-1">
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+          <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+        </div>
+        <span className="text-sm font-medium">Escribiendo...</span>
+      </div>
+    )}
+
+    <div ref={messagesEndRef} />
+  </div>
+);
 }

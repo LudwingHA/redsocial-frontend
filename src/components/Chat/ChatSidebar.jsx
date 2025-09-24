@@ -41,50 +41,53 @@ export function ChatSidebar({ chats, activeChat, onChatSelect, currentUser, load
     );
   }
 
-  return (
-    <div className="divide-y divide-gray-100">
-      {chats.map((chat) => {
-        const otherUser = chat.participants.find(p => p._id !== currentUser._id);
-        const isActive = activeChat?._id === chat._id;
+return (
+  <div className="divide-y divide-gray-100/50">
+    {chats.map((chat) => {
+      const otherUser = chat.participants.find(p => p._id !== currentUser._id);
+      const isActive = activeChat?._id === chat._id;
 
-        return (
-          <div
-            key={chat._id}
-            onClick={() => onChatSelect(chat)}
-            className={`p-4 cursor-pointer transition-colors ${
-              isActive
-                ? 'bg-blue-50 border-r-2 border-blue-500'
-                : 'hover:bg-gray-50'
-            }`}
-          >
-            <div className="flex items-center space-x-3">
+      return (
+        <div
+          key={chat._id}
+          onClick={() => onChatSelect(chat)}
+          className={`p-4 cursor-pointer transition-all duration-300 ${
+            isActive
+              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 border-r-4 border-blue-500'
+              : 'hover:bg-gray-50/80'
+          }`}
+        >
+          <div className="flex items-center space-x-4">
+            <div className="relative">
               <img
                 src={`http://localhost:5000${otherUser?.avatar}`}
                 alt={otherUser?.username}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-md"
               />
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="font-semibold text-gray-800 truncate">
-                    {otherUser?.username || 'Usuario'}
-                  </h3>
-                  {chat.lastMessage && (
-                    <span className="text-xs text-gray-500 flex items-center space-x-1">
-                      <FiClock size={12} />
-                      <span>{formatLastMessageTime(chat.lastMessage)}</span>
-                    </span>
-                  )}
-                </div>
-                
-                <p className="text-sm text-gray-600 truncate">
-                  {truncateText(chat.lastMessageContent)}
-                </p>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-bold text-gray-800 truncate text-lg">
+                  {otherUser?.username || 'Usuario'}
+                </h3>
+                {chat.lastMessage && (
+                  <span className="text-xs text-gray-500 flex items-center space-x-1 bg-gray-100 px-2 py-1 rounded-full">
+                    <FiClock size={12} />
+                    <span className="font-medium">{formatLastMessageTime(chat.lastMessage)}</span>
+                  </span>
+                )}
               </div>
+              
+              <p className="text-sm text-gray-600 truncate leading-relaxed">
+                {truncateText(chat.lastMessageContent)}
+              </p>
             </div>
           </div>
-        );
-      })}
-    </div>
-  );
+        </div>
+      );
+    })}
+  </div>
+);
 }
