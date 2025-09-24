@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiHeart, FiMessageCircle, FiMoreVertical } from 'react-icons/fi';
+import { FiHeart, FiMessageCircle } from 'react-icons/fi';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useSocket } from '../../auth/context/SocketContext';
 import { postAPI } from '../../api/api';
@@ -8,17 +8,26 @@ import { PostMenu } from './PostMenu';
 import { URL_SERVER } from '../../api/url';
 
 export function PostCard({ post }) {
-  const [localPost, setLocalPost] = useState(post);
+  const [localPost, setLocalPost] = useState({
+    ...post,
+    likesCount: post.likes?.length || 0
+  });
   const [showComments, setShowComments] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
   const { user } = useAuth();
   const { socket, isConnected } = useSocket();
 
-  useEffect(() => setLocalPost(post), [post]);
+  // Actualiza localPost si la prop post cambia
+  useEffect(() => {
+    setLocalPost({
+      ...post,
+      likesCount: post.likes?.length || 0
+    });
+  }, [post]);
 
+  // Función para dar like
   const handleLike = async () => {
     if (!user || isLiking) return;
-    
     setIsLiking(true);
     try {
       const res = await postAPI.toggleLike(localPost._id);
@@ -29,6 +38,7 @@ export function PostCard({ post }) {
           likesCount: res.likes.length,
         }));
 
+        // Emitir evento socket
         if (socket && isConnected && user.id !== localPost.author._id) {
           socket.emit("postLiked", {
             postId: localPost._id,
@@ -44,6 +54,7 @@ export function PostCard({ post }) {
     }
   };
 
+  // Función para agregar comentario
   const addComment = async (content) => {
     try {
       const res = await postAPI.addComment(localPost._id, content);
@@ -67,6 +78,7 @@ export function PostCard({ post }) {
     }
   };
 
+  // Saber si el usuario ya dio like
   const hasLiked = localPost.likes?.some((like) =>
     like._id ? like._id.toString() === user?.id : like.toString() === user?.id
   );
@@ -80,7 +92,7 @@ export function PostCard({ post }) {
 
   return (
     <article className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
-      {/* Header del Post con gradiente sutil */}
+      {/* Header del Post */}
       <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-white">
         <div className="flex items-center space-x-4">
           <div className="relative">
@@ -102,7 +114,6 @@ export function PostCard({ post }) {
       {/* Contenido del Post */}
       <div className="p-6">
         <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">{localPost.content}</p>
-        
         {localPost.image && (
           <div className="mt-4 rounded-xl overflow-hidden shadow-lg">
             <img
@@ -114,15 +125,15 @@ export function PostCard({ post }) {
         )}
       </div>
 
-      {/* Stats con gradiente */}
+      {/* Stats */}
       <div className="px-6 py-3 bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex justify-between text-sm text-gray-600">
-          <span className="font-medium">{localPost.likesCount || 0} me gusta</span>
+          <span className="font-medium">{localPost.likesCount} me gusta</span>
           <span className="font-medium">{localPost.comments?.length || 0} comentarios</span>
         </div>
       </div>
 
-      {/* Botones de Acción con hover effects */}
+      {/* Botones de acción */}
       <div className="flex border-t border-gray-100">
         <button
           onClick={handleLike}
