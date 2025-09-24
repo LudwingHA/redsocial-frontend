@@ -18,7 +18,6 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
       await onAdd(text);
       setText('');
 
-      // EMITIR NOTIFICACIÓN DE COMENTARIO
       if (socket && isConnected && user.id !== postAuthorId) {
         socket.emit("newComment", {
           postId: postId,
@@ -42,9 +41,9 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
   };
 
   return (
-    <div className="p-4 bg-gray-50">
+    <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
       {/* Lista de Comentarios */}
-      <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
+      <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
         {comments?.map((comment) => (
           <div key={comment._id} className="flex space-x-3">
             <div className="flex-shrink-0">
@@ -52,34 +51,36 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
                 <img
                   src={`http://localhost:5000${comment.author.avatar}`}
                   alt={comment.author.username}
-                  className="w-8 h-8 rounded-full object-cover"
+                  className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <FiUser size={16} className="text-gray-600" />
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-gray-300 to-gray-400 flex items-center justify-center shadow-md">
+                  <FiUser size={18} className="text-white" />
                 </div>
               )}
             </div>
             <div className="flex-1">
-              <div className="bg-white rounded-lg p-3">
-                <div className="flex items-center space-x-2 mb-1">
-                  <span className="font-semibold text-sm text-gray-800">
+              <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+                <div className="flex items-center space-x-3 mb-2">
+                  <span className="font-bold text-sm text-gray-800">
                     {comment.author?.username || 'Usuario'}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                     {formatCommentDate(comment.createdAt || comment.timestamp)}
                   </span>
                 </div>
-                <p className="text-gray-700 text-sm">{comment.content}</p>
+                <p className="text-gray-700 text-sm leading-relaxed">{comment.content}</p>
               </div>
             </div>
           </div>
         ))}
         
         {(!comments || comments.length === 0) && (
-          <p className="text-center text-gray-500 text-sm py-4">
-            No hay comentarios aún. Sé el primero en comentar.
-          </p>
+          <div className="text-center py-6">
+            <p className="text-gray-500 text-sm bg-white/50 rounded-2xl p-4">
+              No hay comentarios aún. Sé el primero en comentar.
+            </p>
+          </div>
         )}
       </div>
 
@@ -90,11 +91,11 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
             <img
               src={`http://localhost:5000${user.avatar}`}
               alt={user.username}
-              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white shadow-md"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-              <FiUser size={16} className="text-gray-600" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-gray-300 to-gray-400 flex items-center justify-center flex-shrink-0 shadow-md">
+              <FiUser size={18} className="text-white" />
             </div>
           )}
           
@@ -103,15 +104,15 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Escribe un comentario..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/80 backdrop-blur-sm"
               disabled={isSubmitting}
             />
             <button
               type="submit"
               disabled={!text.trim() || isSubmitting}
-              className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full transition-colors disabled:opacity-50"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white p-3 rounded-full transition-all duration-300 shadow-lg disabled:opacity-50"
             >
-              <FiSend size={16} />
+              <FiSend size={18} />
             </button>
           </div>
         </form>

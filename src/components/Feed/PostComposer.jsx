@@ -48,37 +48,44 @@ export function PostComposer({ onPosted }) {
   if (!user) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-6">
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl border border-gray-100 p-6 mb-6">
       <form onSubmit={submit} className="space-y-4">
-        <textarea
-          placeholder="¿Qué estás pensando?"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-          rows={3}
-        />
+        <div className="flex items-start space-x-4">
+          <img
+            src={`http://localhost:5000${user.avatar}`}
+            alt={user.username}
+            className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
+          />
+          <textarea
+            placeholder="¿Qué estás pensando?"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white/50 backdrop-blur-sm"
+            rows={3}
+          />
+        </div>
         
         {imagePreview && (
-          <div className="relative">
+          <div className="relative rounded-xl overflow-hidden shadow-lg">
             <img
               src={imagePreview}
               alt="Preview"
-              className="rounded-lg max-h-64 object-cover w-full"
+              className="rounded-xl max-h-64 object-cover w-full"
             />
             <button
               type="button"
               onClick={removeImage}
-              className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center"
+              className="absolute top-3 right-3 bg-red-500 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg hover:bg-red-600 transition-colors"
             >
               ×
             </button>
           </div>
         )}
 
-        <div className="flex justify-between items-center">
-          <label className="flex items-center gap-2 text-gray-600 cursor-pointer hover:text-blue-500 transition-colors">
-            <FiImage size={20} />
-            <span>Agregar imagen</span>
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+          <label className="flex items-center gap-3 text-gray-600 cursor-pointer hover:text-blue-500 transition-all duration-300 px-4 py-2 rounded-lg hover:bg-blue-50">
+            <FiImage size={22} />
+            <span className="font-medium">Agregar imagen</span>
             <input
               type="file"
               accept="image/*"
@@ -90,7 +97,7 @@ export function PostComposer({ onPosted }) {
           <button
             type="submit"
             disabled={posting || (!content.trim() && !image)}
-            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-lg disabled:opacity-50 font-medium flex items-center gap-2"
           >
             <FiSend size={18} />
             <span>{posting ? 'Publicando...' : 'Publicar'}</span>

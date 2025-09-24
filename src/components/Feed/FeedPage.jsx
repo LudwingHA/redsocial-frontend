@@ -89,37 +89,41 @@ export function FeedPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Feed {isConnected ? "🟢" : "🔴"}
-        </h2>
+    <div className="max-w-2xl mx-auto px-4 py-6">
+      {/* Header con gradiente moderno */}
+      <div className="flex items-center justify-between mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 shadow-lg">
+        <div>
+          <h2 className="text-3xl font-bold text-white mb-2">
+            Tu Feed {isConnected ? "🟢" : "🔴"}
+          </h2>
+          <p className="text-blue-100 text-sm">Conectado con tus amigos</p>
+        </div>
         <button
           onClick={handleRefresh}
           disabled={loading}
-          className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+          className="flex items-center space-x-2 bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 disabled:opacity-50"
         >
-          <FiRefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-          <span>Actualizar</span>
+          <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+          <span className="font-medium">Actualizar</span>
         </button>
       </div>
 
       <PostComposer onPosted={handlePosted} />
       
-      <div className="space-y-4 mt-6">
+      <div className="space-y-6 mt-6">
         {posts.map((post) => (
           <PostCard key={post._id} post={post} />
         ))}
       </div>
 
       {hasMore && (
-        <div className="flex justify-center mt-6">
+        <div className="flex justify-center mt-8">
           <button
             onClick={handleLoadMore}
             disabled={loading}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg transition-colors disabled:opacity-50"
+            className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-lg disabled:opacity-50 font-medium"
           >
-            {loading ? 'Cargando...' : 'Cargar más'}
+            {loading ? 'Cargando...' : 'Cargar más publicaciones'}
           </button>
         </div>
       )}

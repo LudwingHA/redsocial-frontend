@@ -133,216 +133,235 @@ const Register = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-2xl w-full space-y-8">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20">
+        <div className="text-center">
+          <div className="mx-auto w-20 h-20 bg-gradient-to-r from-green-500 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+            <span className="text-2xl font-bold text-white">M</span>
+          </div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
             Crear cuenta
           </h2>
+          <p className="mt-2 text-gray-600">Únete a nuestra comunidad</p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl shadow-sm">
               {error}
             </div>
           )}
           
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Nombre de usuario *
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                minLength="3"
-                maxLength="30"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Usuario"
-                value={formData.username}
-                onChange={handleChange}
-                onBlur={(e) => checkUsernameAvailability(e.target.value)}
-              />
-              {validationErrors.username && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.username}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email *
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="email@ejemplo.com"
-                value={formData.email}
-                onChange={handleChange}
-                onBlur={(e) => checkEmailAvailability(e.target.value)}
-              />
-              {validationErrors.email && (
-                <p className="text-red-500 text-xs mt-1">{validationErrors.email}</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Columna izquierda */}
+            <div className="space-y-4">
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                  Contraseña *
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre de usuario *
                 </label>
                 <input
-                  id="password"
-                  name="password"
-                  type="password"
+                  id="username"
+                  name="username"
+                  type="text"
                   required
-                  minLength="6"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Contraseña"
-                  value={formData.password}
+                  minLength="3"
+                  maxLength="30"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="Usuario"
+                  value={formData.username}
                   onChange={handleChange}
+                  onBlur={(e) => checkUsernameAvailability(e.target.value)}
                 />
-                {validationErrors.password && (
-                  <p className="text-red-500 text-xs mt-1">{validationErrors.password}</p>
+                {validationErrors.username && (
+                  <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.username}</p>
                 )}
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirmar *
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
                 </label>
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
+                  id="email"
+                  name="email"
+                  type="email"
                   required
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Confirmar contraseña"
-                  value={formData.confirmPassword}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="email@ejemplo.com"
+                  value={formData.email}
                   onChange={handleChange}
+                  onBlur={(e) => checkEmailAvailability(e.target.value)}
                 />
-                {validationErrors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">{validationErrors.confirmPassword}</p>
+                {validationErrors.email && (
+                  <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.email}</p>
                 )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                    Contraseña *
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength="6"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                    placeholder="Contraseña"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.password && (
+                    <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.password}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                    Confirmar *
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                    placeholder="Confirmar"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.confirmPassword && (
+                    <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.confirmPassword}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                    Teléfono
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    pattern="[0-9]{10}"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                    placeholder="1234567890"
+                    value={formData.phone}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.phone && (
+                    <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
+                    Edad
+                  </label>
+                  <input
+                    id="age"
+                    name="age"
+                    type="number"
+                    min="13"
+                    max="120"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                    placeholder="Edad"
+                    value={formData.age}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.age && (
+                    <p className="text-red-500 text-xs mt-2 bg-red-50 px-2 py-1 rounded-lg">{validationErrors.age}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Columna derecha */}
+            <div className="space-y-4">
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                  Teléfono
+                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-2">
+                  Ubicación
                 </label>
                 <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  pattern="[0-9]{10}"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="1234567890"
-                  value={formData.phone}
+                  id="location"
+                  name="location"
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="Ciudad, País"
+                  value={formData.location}
                   onChange={handleChange}
                 />
-                {validationErrors.phone && (
-                  <p className="text-red-500 text-xs mt-1">{validationErrors.phone}</p>
-                )}
               </div>
 
               <div>
-                <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-                  Edad
+                <label htmlFor="interests" className="block text-sm font-medium text-gray-700 mb-2">
+                  Intereses (separados por comas)
                 </label>
                 <input
-                  id="age"
-                  name="age"
-                  type="number"
-                  min="13"
-                  max="120"
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Edad"
-                  value={formData.age}
+                  id="interests"
+                  name="interests"
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                  placeholder="música, deportes, tecnología"
+                  value={formData.interests}
                   onChange={handleChange}
                 />
-                {validationErrors.age && (
-                  <p className="text-red-500 text-xs mt-1">{validationErrors.age}</p>
-                )}
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                Ubicación
-              </label>
-              <input
-                id="location"
-                name="location"
-                type="text"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Ciudad, País"
-                value={formData.location}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="interests" className="block text-sm font-medium text-gray-700">
-                Intereses (separados por comas)
-              </label>
-              <input
-                id="interests"
-                name="interests"
-                type="text"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="música, deportes, tecnología"
-                value={formData.interests}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                Biografía
-              </label>
-              <textarea
-                id="bio"
-                name="bio"
-                rows="3"
-                maxLength="500"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Cuéntanos sobre ti..."
-                value={formData.bio}
-                onChange={handleChange}
-              />
+              <div>
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 mb-2">
+                  Biografía
+                </label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  rows="4"
+                  maxLength="500"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm resize-none"
+                  placeholder="Cuéntanos sobre ti..."
+                  value={formData.bio}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
           </div>
 
-          <div>
+          <div className="pt-4">
             <button
               type="submit"
               disabled={loading || isChecking}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creando cuenta...
+                </div>
+              ) : (
+                'Crear cuenta'
+              )}
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center pt-4 border-t border-gray-200/50">
             <Link
               to="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
+              className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-300"
             >
-              ¿Ya tienes cuenta? Inicia sesión
+              ¿Ya tienes cuenta? <span className="font-bold">Inicia sesión</span>
             </Link>
           </div>
         </form>
       </div>
     </div>
-  );
+  </div>
+);
 };
 
 export default Register;

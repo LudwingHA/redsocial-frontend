@@ -28,7 +28,6 @@ export function PostCard({ post }) {
           likesCount: res.likes.length,
         }));
 
-        // EMITIR NOTIFICACIÓN DE LIKE
         if (socket && isConnected && user.id !== localPost.author._id) {
           socket.emit("postLiked", {
             postId: localPost._id,
@@ -53,7 +52,6 @@ export function PostCard({ post }) {
           comments: [...prev.comments, res.comment],
         }));
 
-        // EMITIR NOTIFICACIÓN DE COMENTARIO
         if (socket && isConnected && user.id !== localPost.author._id) {
           socket.emit("newComment", {
             postId: localPost._id,
@@ -80,17 +78,20 @@ export function PostCard({ post }) {
   };
 
   return (
-    <article className="bg-white rounded-lg shadow-md overflow-hidden">
-      {/* Header del Post */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="flex items-center space-x-3">
-          <img
-            src={`http://localhost:5000${localPost.author.avatar}`}
-            alt={localPost.author.username}
-            className="w-10 h-10 rounded-full object-cover"
-          />
+    <article className="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-300">
+      {/* Header del Post con gradiente sutil */}
+      <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-white">
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <img
+              src={`http://localhost:5000${localPost.author.avatar}`}
+              alt={localPost.author.username}
+              className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-lg"
+            />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 rounded-full border-2 border-white"></div>
+          </div>
           <div>
-            <h3 className="font-semibold text-gray-800">{localPost.author.username}</h3>
+            <h3 className="font-bold text-gray-800">{localPost.author.username}</h3>
             <p className="text-sm text-gray-500">{formatDate(localPost.createdAt)}</p>
           </div>
         </div>
@@ -98,47 +99,49 @@ export function PostCard({ post }) {
       </div>
 
       {/* Contenido del Post */}
-      <div className="p-4">
-        <p className="text-gray-800 whitespace-pre-wrap">{localPost.content}</p>
+      <div className="p-6">
+        <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">{localPost.content}</p>
         
         {localPost.image && (
-          <div className="mt-3">
+          <div className="mt-4 rounded-xl overflow-hidden shadow-lg">
             <img
               src={`http://localhost:5000${localPost.image}`}
               alt="Post content"
-              className="rounded-lg max-w-full h-auto max-h-96 object-cover"
+              className="w-full h-auto max-h-96 object-cover transition-transform duration-300 hover:scale-105"
             />
           </div>
         )}
       </div>
 
-      {/* Stats y Acciones */}
-      <div className="px-4 py-2 border-t border-b bg-gray-50">
+      {/* Stats con gradiente */}
+      <div className="px-6 py-3 bg-gradient-to-r from-purple-50 to-blue-50">
         <div className="flex justify-between text-sm text-gray-600">
-          <span>{localPost.likesCount || 0} me gusta</span>
-          <span>{localPost.comments?.length || 0} comentarios</span>
+          <span className="font-medium">{localPost.likesCount || 0} me gusta</span>
+          <span className="font-medium">{localPost.comments?.length || 0} comentarios</span>
         </div>
       </div>
 
-      {/* Botones de Acción */}
-      <div className="flex border-b">
+      {/* Botones de Acción con hover effects */}
+      <div className="flex border-t border-gray-100">
         <button
           onClick={handleLike}
           disabled={!user || isLiking}
-          className={`flex-1 flex items-center justify-center py-3 space-x-2 transition-colors ${
-            hasLiked ? 'text-red-500 hover:text-red-600' : 'text-gray-600 hover:text-gray-800'
+          className={`flex-1 flex items-center justify-center py-4 space-x-2 transition-all duration-300 ${
+            hasLiked 
+              ? 'bg-gradient-to-r from-red-50 to-pink-50 text-red-500 hover:text-red-600' 
+              : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
           } disabled:opacity-50`}
         >
-          <FiHeart size={20} fill={hasLiked ? 'currentColor' : 'none'} />
-          <span>Me gusta</span>
+          <FiHeart size={22} fill={hasLiked ? 'currentColor' : 'none'} />
+          <span className="font-medium">Me gusta</span>
         </button>
 
         <button
           onClick={() => setShowComments(!showComments)}
-          className="flex-1 flex items-center justify-center py-3 space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="flex-1 flex items-center justify-center py-4 space-x-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition-all duration-300"
         >
-          <FiMessageCircle size={20} />
-          <span>Comentar</span>
+          <FiMessageCircle size={22} />
+          <span className="font-medium">Comentar</span>
         </button>
       </div>
 

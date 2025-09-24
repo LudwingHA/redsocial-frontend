@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { FiSearch, FiUserPlus, FiSend } from 'react-icons/fi';
-import { useAuth } from '../../auth/context/AuthContext';
-import { useSocket } from '../../auth/context/SocketContext';
-import { chatAPI } from '../../api/api';
+// import { useAuth } from '../../auth/context/AuthContext';
+// import { useSocket } from '../../auth/context/SocketContext';
+// import { chatAPI } from '../../api/api';
+
 import { ChatSidebar } from './ChatSidebar';
 import { ChatWindow } from './ChatWindow';
 import { UsersList } from './UsersList';
+import { useAuth } from '../../auth/context/AuthContext';
+import { useSocket } from '../../auth/context/SocketContext';
+import { chatAPI } from '../../api/api';
 
 export function ChatPage() {
   const { user } = useAuth();

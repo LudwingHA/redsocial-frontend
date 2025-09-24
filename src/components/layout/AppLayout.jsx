@@ -4,14 +4,16 @@ import { Navigation } from './Navigation';
 
 export function AppLayout({ children, activePage, onPageChange }) {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <AppHeader />
-      <div className="flex">
-        <Navigation activePage={activePage} onPageChange={onPageChange} />
-        <main className="flex-1 p-6">
+  <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
+    <AppHeader />
+    <div className="flex">
+      <Navigation activePage={activePage} onPageChange={onPageChange} />
+      <main className="flex-1 p-8">
+        <div className="max-w-6xl mx-auto">
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
-  );
+  </div>
+);
 }

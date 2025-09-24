@@ -25,31 +25,33 @@ export function AppHeader() {
 
   if (!user) return null;
 
-  return (
-    <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">MiRedSocial</h1>
+ return (
+  <header className="bg-gradient-to-r from-white to-blue-200 shadow-xl border-b border-blue-500/30 px-8 py-5">
+    <div className="flex justify-between items-center">
+      <h1 className="text-3xl font-bold text-purple-600 drop-shadow-lg">MiRedSocial</h1>
+      
+      <div className="flex items-center gap-6">
+        <NotificationBell />
+        
+        <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/30">
+          {status.icon}
+          <span className={`text-sm font-medium text-white drop-shadow-sm ${status.color.replace('text-', 'text-zinc-950 ')}`}>
+            {status.text}
+          </span>
+        </div>
         
         <div className="flex items-center gap-4">
-          <NotificationBell />
-          
-          <div className="flex items-center gap-2">
-            {status.icon}
-            <span className={`text-sm ${status.color}`}>{status.text}</span>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <span className="text-gray-700">Hola, {user.username}</span>
-            <button
-              onClick={logout}
-              className="flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition-colors"
-            >
-              <FiLogOut size={16} />
-              <span>Cerrar sesión</span>
-            </button>
-          </div>
+          <span className="text-purple-600/90 font-black drop-shadow-sm">Hola, {user.username}</span>
+          <button
+            onClick={logout}
+            className="flex items-center gap-3 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-5 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+          >
+            <FiLogOut size={18} />
+            <span className="font-medium">Cerrar sesión</span>
+          </button>
         </div>
       </div>
-    </header>
-  );
+    </div>
+  </header>
+);
 }

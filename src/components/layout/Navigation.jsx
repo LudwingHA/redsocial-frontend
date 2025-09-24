@@ -9,29 +9,32 @@ const menuItems = [
 ];
 
 export function Navigation({ activePage, onPageChange }) {
-  return (
-    <nav className="w-64 bg-white shadow-lg min-h-screen p-4">
-      <div className="space-y-2">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activePage === item.key;
-          
-          return (
-            <button
-              key={item.key}
-              onClick={() => onPageChange(item.key)}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
-                isActive
-                  ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <Icon size={20} />
-              <span className="font-medium">{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </nav>
-  );
+ return (
+  <nav className="w-72 bg-gradient-to-b from-white to-gray-50/80 shadow-2xl min-h-screen p-6 border-r border-gray-200/60">
+    <div className="space-y-3">
+      {menuItems.map((item) => {
+        const Icon = item.icon;
+        const isActive = activePage === item.key;
+        
+        return (
+          <button
+            key={item.key}
+            onClick={() => onPageChange(item.key)}
+            className={`w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 group ${
+              isActive
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105'
+                : 'text-gray-600 hover:bg-white hover:text-gray-800 hover:shadow-md'
+            }`}
+          >
+            <Icon 
+              size={22} 
+              className={isActive ? 'text-white' : 'text-gray-500 group-hover:text-blue-500'} 
+            />
+            <span className="font-semibold text-lg">{item.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  </nav>
+);
 }
