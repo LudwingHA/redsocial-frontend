@@ -30,7 +30,7 @@ export function AppHeader() {
     <div className="flex justify-between items-center">
       <h1 className="text-3xl font-bold text-purple-600 drop-shadow-lg">MiRedSocial</h1>
       
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6"> 
         <NotificationBell />
         
         <div className="flex items-center gap-3 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/30">

@@ -3,7 +3,6 @@ import { useAuth } from "../auth/context/AuthContext";
 import { useSocket } from "../auth/context/SocketContext";
 import { notificationAPI } from "../api/api";
 
-
 export function useNotifications() {
   const { user } = useAuth();
   const { socket, isConnected } = useSocket();
@@ -68,28 +67,40 @@ export function useNotifications() {
   useEffect(() => {
     if (!user || !socket || !isConnected) return;
 
-    // Unirse a su sala personal
+    // 🔌 Unirse a la sala personal
     socket.emit("joinUserRoom", user._id);
 
+    // 🔔 Manejo de posts y comentarios (ya lo tenías como "newNotification")
     const handleNewNotification = (notification) => {
       setNotifications(prev => [notification, ...prev]);
       setUnreadCount(prev => prev + 1);
-      // Opcional: mostrar toast
       console.log("🔔 Nueva notificación:", notification);
     };
 
     const handleUnreadCountUpdated = ({ unreadCount }) => setUnreadCount(unreadCount);
 
+    // 📩 Manejo de mensajes privados
+    const handleNewMessageNotification = (notification) => {
+      // Evitar notificación si el emisor es el mismo usuario
+      if (notification.senderId === user._id) return;
+
+      setNotifications(prev => [notification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+      console.log("📩 Nuevo mensaje privado:", notification);
+    };
+
     socket.on("newNotification", handleNewNotification);
     socket.on("unreadCountUpdated", handleUnreadCountUpdated);
+    socket.on("new_message_notification", handleNewMessageNotification);
 
     return () => {
       socket.off("newNotification", handleNewNotification);
       socket.off("unreadCountUpdated", handleUnreadCountUpdated);
+      socket.off("new_message_notification", handleNewMessageNotification);
     };
   }, [user, socket, isConnected]);
 
-  // Carga inicial
+  // Carga inicial de notificaciones
   useEffect(() => {
     if (user) loadNotifications();
   }, [user]);
