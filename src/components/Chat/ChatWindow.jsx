@@ -29,12 +29,7 @@ export function ChatWindow({
   useEffect(() => {
     if (!socket || !activeChat) return;
 
-    console.log(`🔗 Uniéndose al chat: ${activeChat._id}`);
-    socket.emit("joinChat", activeChat._id);
-    
     return () => {
-      console.log(`🔗 Saliendo del chat: ${activeChat._id}`);
-      socket.emit("leaveChat", activeChat._id);
     };
   }, [socket, activeChat]);
 

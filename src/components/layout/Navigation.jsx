@@ -13,12 +13,6 @@ const menuItems = [
   { key: "feed", label: "Feed", icon: FiHome, path: "/" },
   { key: "chat", label: "Chat", icon: FiMessageSquare, path: "/chat" },
   {
-    key: "notifications",
-    label: "Notificaciones",
-    icon: FiBell,
-    path: "/notifications",
-  },
-  {
     key: "settings",
     label: "Configuraciones",
     icon: FiSettings,
@@ -29,8 +23,6 @@ const menuItems = [
 export function Navigation() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  console.log(user);
-
  return (
   <nav className="w-72 bg-gradient-to-b from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-800/80 shadow-2xl min-h-screen p-6 border-r border-gray-200/60 dark:border-gray-700/60 transition-colors duration-300">
     <div className="space-y-3">

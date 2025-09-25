@@ -3,6 +3,7 @@ import { FiCheck, FiTrash2, FiBellOff } from 'react-icons/fi';
 import { useNotifications } from '../../hooks/useNotifications';
 
 
+
 export function NotificationsPage() {
   const {
     notifications,

@@ -26,6 +26,7 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
           commentContent: text,
           postAuthorId: postAuthorId
         });
+        console.log("notificacion del comentario")
       }
     } catch (err) {
       console.error(err);

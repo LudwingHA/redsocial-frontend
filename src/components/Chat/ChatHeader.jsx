@@ -1,8 +1,11 @@
 import React from 'react';
 import { FiWifi, FiWifiOff, FiVideo, FiPhone, FiMoreVertical } from 'react-icons/fi';
 import { URL_SERVER } from '../../api/url';
+import { useSocket } from '../../auth/context/SocketContext';
 
 export function ChatHeader({ user, isConnected }) {
+  const {onlineUsers = [] } =useSocket()
+  const isOnline = user._id ? onlineUsers.some(id => id?.toString() === user._id?.toString()) : false;
   if (!user) {
     return (
       <div className="border-b border-gray-200 p-4">
@@ -28,7 +31,7 @@ return (
           />
           <div
             className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-3 border-white dark:border-gray-800 ${
-              isConnected ? 'bg-green-400' : 'bg-gray-400'
+              isOnline ? 'bg-green-400' : 'bg-gray-400'
             } shadow-md`}
           />
         </div>
@@ -36,13 +39,13 @@ return (
         <div>
           <h3 className="text-xl font-bold text-white dark:text-gray-100">{user.username}</h3>
           <div className="flex items-center space-x-2">
-            {isConnected ? (
+            {isOnline ? (
               <FiWifi size={16} className="text-green-300 dark:text-green-400" />
             ) : (
               <FiWifiOff size={16} className="text-gray-300 dark:text-gray-400" />
             )}
-            <span className={`text-sm font-medium ${isConnected ? 'text-green-200 dark:text-green-300' : 'text-gray-300 dark:text-gray-400'}`}>
-              {isConnected ? 'En línea' : 'Desconectado'}
+            <span className={`text-sm font-medium ${isOnline ? 'text-green-200 dark:text-green-300' : 'text-gray-300 dark:text-gray-400'}`}>
+              {isOnline ? 'En línea' : 'Desconectado'}
             </span>
           </div>
         </div>
