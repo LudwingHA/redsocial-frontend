@@ -1,9 +1,5 @@
-import React, { useEffect, useState, useRef } from "react";
-import { FiSearch, FiUserPlus, FiSend } from "react-icons/fi";
-// import { useAuth } from '../../auth/context/AuthContext';
-// import { useSocket } from '../../auth/context/SocketContext';
-// import { chatAPI } from '../../api/api';
-
+import React, { useEffect, useState } from "react";
+import { FiSearch } from "react-icons/fi";
 import { ChatSidebar } from "./ChatSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { UsersList } from "./UsersList";
@@ -11,9 +7,15 @@ import { useAuth } from "../../auth/context/AuthContext";
 import { useSocket } from "../../auth/context/SocketContext";
 import { chatAPI } from "../../api/api";
 
+function sameId(a, b) {
+  if (!a || !b) return false;
+  return a.toString() === b.toString();
+}
+
 export function ChatPage() {
   const { user } = useAuth();
-  const { socket, isConnected, waitForConnection } = useSocket();
+  const { socket, isConnected, waitForConnection, onlineUsers = [] } = useSocket();
+
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -24,31 +26,39 @@ export function ChatPage() {
   // Cargar usuarios disponibles
   useEffect(() => {
     if (!user) return;
-
     const loadUsers = async () => {
       try {
         const res = await chatAPI.getAllUsers();
         if (res.success) {
-          setAvailableUsers(res.users.filter((u) => u._id !== user._id));
+          setAvailableUsers(res.users.filter((u) => !sameId(u._id, user._id || user.id)));
         }
       } catch (err) {
         console.error(err);
       }
     };
-
     loadUsers();
   }, [user]);
 
-  // Cargar chats del usuario
+  // Cargar chats (inicio)
   useEffect(() => {
     if (!user) return;
-
     const loadChats = async () => {
       setLoading(true);
       try {
         const res = await chatAPI.getUserChats();
         if (res.success) {
-          setChats(res.chats || []);
+          // Enriquecer cada chat con lastMessageSender si viene en messages
+          const enriched = (res.chats || []).map((c) => {
+            const lastMsg = (c.messages && c.messages.length) ? c.messages[c.messages.length - 1] : null;
+            return {
+              ...c,
+              lastMessageContent: c.lastMessageContent || lastMsg?.content || "",
+              lastMessage: c.lastMessage || lastMsg?.timestamp || c.lastMessage,
+              lastMessageSender: lastMsg?.sender?._id || null,
+            };
+          });
+          enriched.sort((a, b) => new Date(b.lastMessage || 0) - new Date(a.lastMessage || 0));
+          setChats(enriched);
         }
       } catch (err) {
         console.error(err);
@@ -56,21 +66,70 @@ export function ChatPage() {
         setLoading(false);
       }
     };
-
     loadChats();
   }, [user]);
 
-  // Filtrar chats y usuarios
-  const filteredChats = chats.filter((chat) => {
-    const otherUser = chat.participants.find((p) => p._id !== user?._id);
-    return otherUser?.username.toLowerCase().includes(searchTerm.toLowerCase());
-  });
+  // Escuchar sockets: newMessage y newChat
+  useEffect(() => {
+    if (!socket) return;
 
-  const filteredUsers = availableUsers.filter((user) =>
-    user.username.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    const handleNewMessage = ({ chatId, message, tempId }) => {
+      // DEBUG: descomenta si quieres ver payloads
+      // console.log("socket newMessage ->", { chatId, message, tempId });
 
-  // Abrir chat existente
+      setChats((prev) => {
+        if (!Array.isArray(prev) || prev.length === 0) return prev;
+
+        let found = false;
+        const next = prev.map((c) => {
+          if (sameId(c._id, chatId)) {
+            found = true;
+            return {
+              ...c,
+              lastMessageContent: message?.content ?? c.lastMessageContent,
+              lastMessage: message?.timestamp ?? (new Date()).toISOString(),
+              lastMessageSender: message?.sender?._id ?? c.lastMessageSender,
+            };
+          }
+          return c;
+        });
+
+        if (!found) {
+          // Si no está en la lista, no lo agregamos automáticamente para evitar datos parciales.
+          // Si quieres, aquí podrías fetchear el chat completo y agregarlo.
+          return prev;
+        }
+
+        next.sort((a, b) => new Date(b.lastMessage || 0) - new Date(a.lastMessage || 0));
+        return [...next];
+      });
+
+      // Si el chat abierto es el mismo, dejar que ChatWindow reciba el mensaje (evita duplicados)
+      // ChatWindow también escucha "newMessage" y reemplaza tempId/maneja mensajes.
+    };
+
+    const handleNewChat = (newChat) => {
+      setChats((prev) => {
+        const exists = prev.some((c) => sameId(c._id, newChat._id));
+        if (exists) {
+          // actualizar datos si ya existe
+          return prev.map((c) => (sameId(c._id, newChat._id) ? { ...c, ...newChat } : c));
+        }
+        // insertar al inicio
+        return [newChat, ...prev];
+      });
+    };
+
+    socket.on("newMessage", handleNewMessage);
+    socket.on("newChat", handleNewChat);
+
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+      socket.off("newChat", handleNewChat);
+    };
+  }, [socket, setChats, activeChat]);
+
+  // Función para abrir chat (no añade chats; solo carga mensajes y se une a la sala)
   const openChat = async (chat) => {
     setActiveChat(chat);
     try {
@@ -78,7 +137,6 @@ export function ChatPage() {
       if (res.success) {
         setMessages(res.chat.messages || []);
         if (socket) {
-          // Esperar a que la conexión esté lista
           if (waitForConnection) await waitForConnection();
           socket.emit("joinChat", chat._id);
         }
@@ -88,19 +146,35 @@ export function ChatPage() {
     }
   };
 
-  // Iniciar nuevo chat
+  // Iniciar nuevo chat (evitar duplicados)
   const startChat = async (participantId) => {
     try {
       const res = await chatAPI.createChat(participantId);
       if (res.success) {
-        setChats((prev) => [res.chat, ...prev]);
+        setChats((prev) => {
+          const exists = prev.some((c) => sameId(c._id, res.chat._id));
+          if (exists) {
+            return prev.map((c) => (sameId(c._id, res.chat._id) ? { ...c, ...res.chat } : c));
+          }
+          return [res.chat, ...prev];
+        });
         openChat(res.chat);
-        setSearchTerm(""); // Limpiar búsqueda
+        setSearchTerm("");
       }
     } catch (err) {
       console.error(err);
     }
   };
+
+  // Filtrado para render
+  const filteredChats = chats.filter((chat) => {
+    const otherUser = chat.participants.find((p) => !sameId(p._id, user._id || user.id));
+    return otherUser?.username?.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
+  const filteredUsers = availableUsers.filter((u) =>
+    u.username?.toLowerCase().includes(searchTerm.toLowerCase())
+  ).map(u => ({ ...u, isOnline: onlineUsers.some(id => sameId(id, u._id)) }));
 
   if (!user) {
     return (
@@ -109,60 +183,51 @@ export function ChatPage() {
       </div>
     );
   }
-return (
-  <div className="flex h-[calc(100vh-140px)] bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900 dark:to-blue-900/20 rounded-2xl shadow-2xl overflow-hidden border border-white/50 dark:border-gray-700/50 transition-colors duration-300">
-    {/* Sidebar izquierdo - Chats */}
-    <div className="w-96 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-colors duration-300">
-      {/* Header del sidebar */}
-      <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80 transition-colors duration-300">
-        <div className="relative">
-          <FiSearch
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500"
-            size={20}
-          />
-          <input
-            type="text"
-            placeholder="Buscar chats o usuarios..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-        </div>
-      </div>
 
-      {/* Lista de chats */}
-      <div className="flex-1 overflow-y-auto">
+  return (
+    <div className="flex h-[calc(100vh-140px)]">
+      <div className="w-96">
+        {/* Buscador */}
+        <div className="p-6 border-b">
+          <div className="relative">
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Buscar chats o usuarios..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12"
+            />
+          </div>
+        </div>
+
         <ChatSidebar
           chats={filteredChats}
-          activeChat={activeChat}
-          onChatSelect={openChat}
+          setChats={setChats}
           currentUser={user}
-          loading={loading}
+          onlineUsers={onlineUsers}
+          onChatClick={openChat}
+          activeChatId={activeChat?._id}
         />
       </div>
-    </div>
 
-    {/* Ventana principal de chat o lista de usuarios */}
-    <div className="flex-1 flex flex-col bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm transition-colors duration-300">
-      {activeChat ? (
-        <ChatWindow
-          activeChat={activeChat}
-          messages={messages}
-          setMessages={setMessages}
-          currentUser={user}
-          socket={socket}
-          isConnected={isConnected}
-          waitForConnection={waitForConnection}
-        />
-      ) : (
-        <UsersList
-          users={filteredUsers}
-          onUserSelect={startChat}
-          searchTerm={searchTerm}
-        />
-      )}
+      <div className="flex-1">
+        {activeChat ? (
+          <ChatWindow
+            activeChat={activeChat}
+            messages={messages}
+            setMessages={setMessages}
+            currentUser={user}
+            socket={socket}
+            isConnected={isConnected}
+            waitForConnection={waitForConnection}
+          />
+        ) : (
+          <UsersList users={filteredUsers} onUserSelect={startChat} searchTerm={searchTerm} />
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 }
-export default ChatPage
+
+export default ChatPage;

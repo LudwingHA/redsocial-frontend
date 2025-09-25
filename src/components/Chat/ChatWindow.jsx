@@ -44,43 +44,30 @@ export function ChatWindow({
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    const handleNewMessage = ({ chatId, message }) => {
-      if (!activeChat || chatId !== activeChat._id) return;
+    const handleNewMessage = ({ chatId, message, tempId }) => {
+  if (!activeChat || chatId !== activeChat._id) return;
 
-      setMessages((prev) => {
-        // Validación robusta para evitar duplicados
-        const isDuplicate = prev.some(m => 
-          m._id === message._id || 
-          (m.isSending && 
-           m.sender._id === message.sender._id && 
-           m.content === message.content &&
-           Math.abs(new Date(m.timestamp) - new Date(message.timestamp)) < 5000)
-        );
-        
-        if (isDuplicate) {
-          console.log('🚫 Mensaje duplicado detectado y filtrado');
-          return prev;
-        }
+  setMessages((prev) => {
+    let next = [...prev];
 
-        // Reemplazar mensaje temporal si coincide sender + content
-        const tempIndex = prev.findIndex(
-          (m) => 
-            m.isSending &&
-            m.sender._id === message.sender._id &&
-            m.content === message.content
-        );
+    // ✅ Si existe un tempId, reemplazar directamente el mensaje temporal
+    if (tempId) {
+      const tempIndex = next.findIndex((m) => m._id === tempId);
+      if (tempIndex !== -1) {
+        next[tempIndex] = message;
+        return next;
+      }
+    }
 
-        if (tempIndex !== -1) {
-          const next = [...prev];
-          next[tempIndex] = message;
-          console.log('🔄 Mensaje temporal reemplazado con mensaje real');
-          return next;
-        }
+    // ✅ Evitar duplicados por _id
+    if (next.some((m) => m._id === message._id)) {
+      return next;
+    }
 
-        console.log('✅ Nuevo mensaje añadido');
-        return [...prev, message];
-      });
-    };
+    // Si no es duplicado, lo agregamos al final
+    return [...next, message];
+  });
+};
 
     const handleTyping = ({ chatId, userId }) => {
       if (!activeChat || chatId !== activeChat._id) return;
@@ -89,8 +76,6 @@ export function ChatWindow({
         if (prev.includes(userId)) return prev;
         return [...prev, userId];
       });
-
-      // Limpiar typing después de 2 segundos
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
         setTypingUsers((prev) => prev.filter((id) => id !== userId));
@@ -165,12 +150,10 @@ export function ChatWindow({
       // Emitir mensaje al servidor
       socket.emit("sendMessage", { 
         chatId: activeChat._id, 
-        content 
+        content, tempId
       });
 
-    } catch (err) {
-      console.error("❌ Error enviando mensaje:", err);
-      
+    } catch (err) {    
       // Revertir mensaje temporal en caso de error
       setMessages((prev) => prev.filter((m) => m._id !== tempId));
       setText(content);
@@ -202,12 +185,12 @@ export function ChatWindow({
   }
 
   const otherUser = activeChat.participants.find(
-    (p) => p._id !== currentUser._id
+    (p) => p._id !== (currentUser._id || currentUser.id)
   );
 
  return (
   <div className="flex flex-col h-full bg-gradient-to-b from-white/80 to-gray-50/50 dark:from-gray-800/80 dark:to-gray-900/50 transition-colors duration-300">
-    <ChatHeader user={otherUser} isConnected={isConnected} />
+    <ChatHeader user={otherUser} isConnected={isConnected}/>
 
     <div className="flex-1 overflow-hidden bg-gradient-to-b from-transparent to-blue-50/20 dark:to-blue-900/10">
       <MessageList

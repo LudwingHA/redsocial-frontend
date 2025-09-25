@@ -1,99 +1,61 @@
-import React, { useEffect, useRef } from 'react';
-import { FiCheck, FiCheckCircle } from 'react-icons/fi';
+import React, { useEffect, useRef } from "react";
 import { URL_SERVER } from '../../api/url';
 
-export function MessageList({ messages, currentUser, typingUsers }) {
+export function MessageList({ messages = [], currentUser, typingUsers = [], activeChat }) {
   const messagesEndRef = useRef(null);
 
-  // Scroll automático al final
+  // Scroll automático
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typingUsers]);
 
-  const formatMessageTime = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  return (
+    <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      {messages.map((message, index) => {
+        const isOwn = message.sender?._id === currentUser?._id;
+        const sender = message.sender || { username: "Usuario", avatar: null };
+        const avatarUrl = sender.avatar ? `${URL_SERVER}${sender.avatar}` : "/default-avatar.png";
 
-  const isConsecutiveMessage = (currentMsg, previousMsg) => {
-    if (!previousMsg) return false;
-    return currentMsg.sender._id === previousMsg.sender._id;
-  };
-return (
-  <div className="h-full overflow-y-auto p-6 space-y-3 bg-gradient-to-b from-transparent to-blue-50/20 dark:to-blue-900/10 transition-colors duration-300">
-    {messages.map((message, index) => {
-      const isOwn = message.sender._id === currentUser._id;
-      const isConsecutive = isConsecutiveMessage(message, messages[index - 1]);
-      const showAvatar = !isOwn && !isConsecutive;
+        // Mostrar avatar solo si es diferente al anterior
+        const prevMessage = messages[index - 1];
+        const showAvatar = !prevMessage || prevMessage.sender?._id !== sender._id;
 
-      return (
-        <div
-          key={message._id}
-          className={`flex items-end space-x-3 ${isOwn ? 'justify-end' : 'justify-start'}`}
-        >
-          {/* Avatar del remitente (solo para mensajes de otros) */}
-          {showAvatar && (
-            <img
-              src={`${URL_SERVER}${message.sender.avatar}`}
-              alt={message.sender.username}
-              className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white dark:border-gray-800 shadow-md"
-            />
-          )}
-          
-          {/* Espacio para alinear cuando no hay avatar */}
-          {!isOwn && !showAvatar && <div className="w-10" />}
-
-          {/* Mensaje */}
-          <div
-            className={`max-w-md px-5 py-3 rounded-2xl shadow-sm ${
-              isOwn
-                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-br-none'
-                : 'bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200/50 dark:border-gray-600/50'
-            } ${message.isSending ? 'opacity-70' : ''} transition-all duration-300`}
-          >
-            {/* Nombre del remitente (solo primer mensaje de la secuencia) */}
-            {!isOwn && showAvatar && (
-              <p className="text-xs font-bold mb-2 text-gray-600 dark:text-gray-300">{message.sender.username}</p>
+        return (
+          <div key={message._id || index} className={`flex items-end gap-2 ${isOwn ? "justify-end" : "justify-start"}`}>
+            {!isOwn && showAvatar ? (
+              <img
+                src={avatarUrl}
+                alt={sender.username}
+                onError={(e) => { e.target.src = "/default-avatar.png"; }}
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-white dark:border-gray-800 shadow-md"
+              />
+            ) : (
+              !isOwn && <div className="w-10" /> 
             )}
-            
-            <p className="break-words leading-relaxed">{message.content}</p>
-            
-            {/* Timestamp y estado */}
-            <div className={`flex items-center space-x-2 mt-2 text-xs ${
-              isOwn ? 'text-blue-100' : 'text-gray-500 dark:text-gray-400'
-            }`}>
-              <span className="font-medium">{formatMessageTime(message.timestamp)}</span>
-              {isOwn && (
-                message.isSending ? (
-                  <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-blue-200 rounded-full animate-pulse"></div>
-                    <FiCheck size={12} />
-                  </div>
-                ) : (
-                  <FiCheckCircle size={14} className="text-green-300 dark:text-green-400" />
-                )
-              )}
+
+            <div className={`px-4 py-2 rounded-2xl shadow-md max-w-[75%] break-words ${isOwn ? "bg-blue-500 text-white rounded-br-none" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-none"}`}>
+              <p>{message.content}</p>
+              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
             </div>
           </div>
-        </div>
-      );
-    })}
+        );
+      })}
 
-    {/* Indicador de typing */}
-    {typingUsers.length > 0 && (
-      <div className="flex items-center space-x-3 text-gray-500 dark:text-gray-400 italic bg-white/50 dark:bg-gray-700/50 rounded-2xl p-4 mx-4">
-        <div className="flex space-x-1">
-          <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
-          <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+      {/* Indicador de escritura */}
+      {typingUsers.length > 0 && activeChat && (
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 animate-pulse">
+          <span>
+            {activeChat.participants
+              .filter((p) => typingUsers.includes(p._id))
+              .map((p) => p.username)
+              .join(", ") || "Alguien"} está escribiendo...
+          </span>
         </div>
-        <span className="text-sm font-medium">Escribiendo...</span>
-      </div>
-    )}
+      )}
 
-    <div ref={messagesEndRef} />
-  </div>
-);
+      <div ref={messagesEndRef} />
+    </div>
+  );
 }

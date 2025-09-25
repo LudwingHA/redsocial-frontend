@@ -10,15 +10,16 @@ export function AppLayout() {
       <AppHeader />
       <div className="flex">
         <Navigation />
-        <main className="flex-1 p-8
+        <main
+          className="flex-1 p-8
   bg-gradient-to-br
   dark:from-slate-800
   dark:via-slate-700
   dark:to-slate-800
-  transition-colors duration-500">
+  transition-colors duration-500"
+        >
           <div className="max-w-6xl mx-auto">
             <Outlet />{" "}
-            {/* Aquí se renderizan las páginas (Feed, Chat, Perfil, etc.) */}
           </div>
         </main>
       </div>

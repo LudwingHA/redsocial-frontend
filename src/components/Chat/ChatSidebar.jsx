@@ -1,94 +1,89 @@
-import React from 'react';
-import { FiMessageSquare, FiClock } from 'react-icons/fi';
-import { URL_SERVER } from '../../api/url';
+import React from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/es";
+import { URL_SERVER } from "../../api/url";
 
-export function ChatSidebar({ chats, activeChat, onChatSelect, currentUser, loading }) {
-  const formatLastMessageTime = (timestamp) => {
-    if (!timestamp) return '';
-    
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffInDays = (now - date) / (1000 * 60 * 60 * 24);
+dayjs.extend(relativeTime);
+dayjs.locale("es");
 
-    if (diffInDays < 1) {
-      return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInDays < 7) {
-      return date.toLocaleDateString('es-ES', { weekday: 'short' });
-    } else {
-      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-    }
-  };
+export function ChatSidebar({
+  chats = [],
+  setChats, // lo recibe pero aquí no lo usamos (lo dejamos por compatibilidad)
+  currentUser,
+  onlineUsers = [],
+  onChatClick,
+  activeChatId,
+}) {
+  const currentUserId = currentUser?._id || currentUser?.id;
 
-  const truncateText = (text, maxLength = 30) => {
-    if (!text) return 'Sin mensajes';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-32">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+  return (
+    <div className="w-full bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+      <div className="p-4 border-b">
+        <h2 className="text-xl font-bold">Chats</h2>
       </div>
-    );
-  }
 
-  if (chats.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-500 p-8">
-        <FiMessageSquare size={48} className="mb-4 text-gray-300" />
-        <p className="text-center">No tienes chats activos</p>
-        <p className="text-sm text-center mt-2">Busca usuarios para comenzar una conversación</p>
-      </div>
-    );
-  }
+      <div className="flex-1 overflow-y-auto">
+        {chats.map((chat) => {
+          const otherUser = chat.participants.find((p) => (p._id !== currentUserId && p._id !== currentUserId?.toString()) || ![currentUserId, (currentUserId?.toString())].includes(p._id) ? p : null) // fallback safe
+            || chat.participants.find((p) => p._id !== (currentUser?._id || currentUser?.id)); // safe find
 
-return (
-  <div className="divide-y divide-gray-100/50 dark:divide-gray-700/50">
-    {chats.map((chat) => {
-      const otherUser = chat.participants.find(p => p._id !== currentUser._id);
-      const isActive = activeChat?._id === chat._id;
+          // Fallback si algo no cuadra
+          const userToShow = otherUser || (chat.participants && chat.participants[0]) || {};
+          const username = userToShow.username || "Usuario";
+          const avatar = userToShow.avatar ? URL_SERVER + userToShow.avatar : "/default-avatar.png";
+          const isOnline = userToShow._id ? onlineUsers.some(id => id?.toString() === userToShow._id?.toString()) : false;
 
-      return (
-        <div
-          key={chat._id}
-          onClick={() => onChatSelect(chat)}
-          className={`p-4 cursor-pointer transition-all duration-300 ${
-            isActive
-              ? 'bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 border-r-4 border-blue-500 dark:border-blue-400'
-              : 'hover:bg-gray-50/80 dark:hover:bg-gray-700/50'
-          }`}
-        >
-          <div className="flex items-center space-x-4">
-            <div className="relative">
-              <img
-                src={`${URL_SERVER}${otherUser?.avatar}`}
-                alt={otherUser?.username}
-                className="w-14 h-14 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md"
-              />
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 dark:bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-bold text-gray-800 dark:text-gray-100 truncate text-lg">
-                  {otherUser?.username || 'Usuario'}
-                </h3>
-                {chat.lastMessage && (
-                  <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                    <FiClock size={12} />
-                    <span className="font-medium">{formatLastMessageTime(chat.lastMessage)}</span>
-                  </span>
-                )}
+          // Mostrar "Tú:" si el último mensaje lo enviaste
+          const lastMsgText = chat.lastMessageContent || "";
+          const lastMsgSender = chat.lastMessageSender || chat.lastMessageSender?._id || null;
+          const isMine = lastMsgSender ? (lastMsgSender.toString() === currentUserId?.toString()) : false;
+
+          const displayText = isMine
+            ? lastMsgText.startsWith("Tú:") ? lastMsgText : `Tú: ${lastMsgText}`
+            : lastMsgText;
+
+          const lastMsgTime = chat.lastMessage ? dayjs(chat.lastMessage).fromNow() : "";
+
+          return (
+            <div
+              key={chat._id}
+              onClick={() => onChatClick(chat)}
+              className={`flex items-center p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 ${
+                activeChatId === chat._id ? "bg-gray-100 dark:bg-gray-800" : ""
+              }`}
+            >
+              <div className="relative">
+                <img
+                  src={avatar}
+                  alt={username}
+                  onError={(e) => { e.target.src = "/default-avatar.png"; }}
+                  className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow"
+                />
+                <div
+                  className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800 ${
+                    isOnline ? "bg-green-400" : "bg-gray-400"
+                  }`}
+                />
               </div>
-              
-              <p className="text-sm text-gray-600 dark:text-gray-300 truncate leading-relaxed">
-                {truncateText(chat.lastMessageContent)}
-              </p>
+
+              <div className="ml-3 flex-1 min-w-0">
+                <div className="flex justify-between items-center">
+                  <p className="text-sm font-semibold truncate">{username}</p>
+                  <span className="text-xs text-gray-500">{lastMsgTime}</span>
+                </div>
+                <p className="text-xs text-gray-500 truncate mt-1">{displayText || "Sin mensajes aún"}</p>
+              </div>
+
+              {chat.unreadCount > 0 && (
+                <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full ml-3">
+                  {chat.unreadCount}
+                </div>
+              )}
             </div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-);
+          );
+        })}
+      </div>
+    </div>
+  );
 }

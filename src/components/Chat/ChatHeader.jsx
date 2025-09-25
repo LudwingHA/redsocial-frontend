@@ -15,6 +15,7 @@ export function ChatHeader({ user, isConnected }) {
       </div>
     );
   }
+
 return (
   <div className="bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-600 dark:to-blue-600 p-6 shadow-lg transition-colors duration-300">
     <div className="flex items-center justify-between">
