@@ -19,7 +19,6 @@ export function FeedPage() {
   useEffect(() => {
     if (!socket || !isConnected) return;
 
-    console.log("🔌 Configurando listeners del feed con socket global");
 
     socket.on("newPost", (post) => {
       setPosts((prev) => [post, ...prev]);
@@ -87,43 +86,41 @@ export function FeedPage() {
       socket.emit("newPost", newPost);
     }
   };
-
 return (
-  <div className="max-w-2xl mx-auto px-4 py-6">
-    {/* Header con gradiente moderno */}
-    <div className="flex items-center justify-between mb-8 p-6 rounded-2xl bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 dark:from-purple-950 dark:via-blue-900 dark:to-cyan-800 shadow-lg transition-colors duration-300">
+  <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="flex items-center justify-between p-6 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-slate-200/60 dark:border-gray-700/60 shadow-sm">
       <div>
-        <h2 className="text-3xl font-bold text-white mb-2">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">
           Tu Feed {isConnected ? "🟢" : "🔴"}
         </h2>
-        <p className="text-blue-100 dark:text-blue-200 text-sm">Conectado con tus amigos</p>
+        <p className="text-slate-600 dark:text-slate-300 text-sm">Conectado con tus amigos</p>
       </div>
       <button
         onClick={handleRefresh}
         disabled={loading}
-        className="flex items-center space-x-2 bg-white/20 dark:bg-gray-800/30 hover:bg-white/30 dark:hover:bg-gray-700/40 text-white px-6 py-3 rounded-xl transition-all duration-300 backdrop-blur-sm border border-white/20 dark:border-gray-600/30 disabled:opacity-50"
+        className="flex items-center gap-2 bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg transition-all duration-300 border border-slate-200/60 dark:border-gray-600/60 disabled:opacity-50"
       >
-        <FiRefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+        <FiRefreshCw size={18} className={loading ? 'animate-spin' : ''} />
         <span className="font-medium">Actualizar</span>
       </button>
     </div>
 
     <PostComposer onPosted={handlePosted} />
     
-    <div className="space-y-6 mt-6">
+    <div className="space-y-4">
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
     </div>
 
     {hasMore && (
-      <div className="flex justify-center mt-8">
+      <div className="flex justify-center pt-4">
         <button
           onClick={handleLoadMore}
           disabled={loading}
-          className="bg-gradient-to-r from-gray-600 to-gray-700 dark:from-gray-700 dark:to-gray-800 hover:from-gray-700 hover:to-gray-800 dark:hover:from-gray-800 dark:hover:to-gray-900 text-white px-8 py-3 rounded-xl transition-all duration-300 shadow-lg disabled:opacity-50 font-medium"
+          className="bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-300 px-6 py-3 rounded-lg transition-all duration-300 border border-slate-200/60 dark:border-gray-600/60 disabled:opacity-50 font-medium"
         >
-          {loading ? 'Cargando...' : 'Cargar más publicaciones'}
+          {loading ? 'Cargando...' : 'Cargar más'}
         </button>
       </div>
     )}

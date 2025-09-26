@@ -91,77 +91,69 @@ export function PostCard({ post }) {
       minute: '2-digit'
     });
   };
-
 return (
-  <article className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-2xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-300">
-    {/* Header del Post */}
-    <div className="flex items-center justify-between p-6 bg-gradient-to-r from-gray-50 to-white dark:from-gray-700 dark:to-gray-800 transition-colors duration-300">
-      <div className="flex items-center space-x-4">
-        <div className="relative">
-          <Link to={`/profile/${localPost.author._id}`}> 
-            <img
-              src={`${URL_SERVER}${localPost.author.avatar}`}
-              alt={localPost.author.username}
-              className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-lg cursor-pointer hover:scale-105 transition-transform duration-300"
-            />
-          </Link>
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-r from-green-400 to-blue-500 dark:from-green-500 dark:to-blue-600 rounded-full border-2 border-white dark:border-gray-800"></div>
-        </div>
-        <div>
-          <h3 className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3">{localPost.author.username}{user.id != localPost.author._id ? (<FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />) : ""}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{formatDate(localPost.createdAt)}</p>
-        </div>
+  <article className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-gray-700/60 overflow-hidden transition-all duration-300 hover:shadow-md">
+    <div className="flex items-center justify-between p-4 border-b border-slate-200/60 dark:border-gray-700/60">
+      <div className="flex items-center gap-3">
+        <Link to={`/profile/${localPost.author._id}`} className="flex items-center gap-3">
+          <img
+            src={`${URL_SERVER}${localPost.author.avatar}`}
+            alt={localPost.author.username}
+            className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-gray-600 shadow-sm"
+          />
+          <div>
+            <h3 className="font-semibold text-slate-800 dark:text-slate-100">{localPost.author.username}</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{formatDate(localPost.createdAt)}</p>
+          </div>
+        </Link>
+        {user.id !== localPost.author._id && <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />}
       </div>
       <PostMenu post={localPost} />
     </div>
 
-    {/* Contenido del Post */}
-    <div className="p-6">
-      <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">{localPost.content}</p>
+    <div className="p-4">
+      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{localPost.content}</p>
       {localPost.image && (
-        <div className="mt-4 rounded-xl overflow-hidden shadow-lg">
+        <div className="mt-3 rounded-xl overflow-hidden">
           <img
             src={`${URL_SERVER}${localPost.image}`}
             alt="Post content"
-            className="w-full h-auto max-h-96 object-cover transition-transform duration-300 hover:scale-105"
+            className="w-full h-auto max-h-80 object-cover"
           />
         </div>
       )}
     </div>
 
-    {/* Stats */}
-    <div className="px-6 py-3 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 transition-colors duration-300">
-      <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-        <span className="font-medium">{localPost.likesCount} me gusta</span>
-        <span className="font-medium">{localPost.comments?.length || 0} comentarios</span>
+    <div className="px-4 py-2 bg-slate-50/50 dark:bg-gray-700/50 border-y border-slate-200/60 dark:border-gray-700/60">
+      <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
+        <span>{localPost.likesCount} me gusta</span>
+        <span>{localPost.comments?.length || 0} comentarios</span>
       </div>
     </div>
 
-    {/* Botones de acción */}
-    <div className="flex border-t border-gray-100 dark:border-gray-700">
+    <div className="flex">
       <button
         onClick={handleLike}
         disabled={!user || isLiking}
-        className={`flex-1 flex items-center justify-center py-4 space-x-2 transition-all duration-300 ${
+        className={`flex-1 flex items-center justify-center gap-2 py-3 transition-all duration-300 ${
           hasLiked
-            ? 'bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300'
-            : 'text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
+            ? 'text-rose-500 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-900/20'
+            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50/50 dark:hover:bg-gray-700/50'
         } disabled:opacity-50`}
       >
-        <FiHeart size={22} fill={hasLiked ? 'currentColor' : 'none'} />
+        <FiHeart size={20} fill={hasLiked ? 'currentColor' : 'none'} />
         <span className="font-medium">Me gusta</span>
       </button>
 
       <button
         onClick={() => setShowComments(!showComments)}
-        className="flex-1 flex items-center justify-center py-4 space-x-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-300"
+        className="flex-1 flex items-center justify-center gap-2 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50/50 dark:hover:bg-gray-700/50 transition-all duration-300"
       >
-        <FiMessageCircle size={22} />
+        <FiMessageCircle size={20} />
         <span className="font-medium">Comentar</span>
       </button>
     </div>
 
-    {/* Comentarios */}
     {showComments && (
       <CommentList
         comments={localPost.comments}

@@ -26,38 +26,47 @@ export function AppHeader() {
 
   if (!user) return null;
 return (
-  <header className="bg-gradient-to-r from-white to-blue-200 dark:from-gray-900 dark:to-blue-900/80 shadow-xl border-b border-blue-500/30 dark:border-blue-600/30 px-8 py-5 transition-colors duration-300">
-    <div className="flex justify-between items-center">
-      <h1 className="text-3xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg transition-colors duration-300">
-        MiRedSocial
-      </h1>
+  <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-gray-700/60 px-6 py-4 transition-all duration-300 shadow-sm">
+    <div className="flex justify-between items-center max-w-7xl mx-auto">
+      <div className="flex items-center space-x-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+          <span className="text-white font-bold text-lg">M</span>
+        </div>
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+          MiRedSocial
+        </h1>
+      </div>
       
-      <div className="flex items-center gap-6"> 
-        <NotificationBell />
-        <ThemeToggle />
-        
-        <div className="flex items-center gap-3 bg-white/20 dark:bg-gray-800/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/30 dark:border-gray-600/30 transition-colors duration-300">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 bg-slate-100/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-slate-200/50 dark:border-gray-600/50 transition-all duration-300 hover:shadow-sm">
           {status.icon}
-          <span className={`text-sm font-medium text-white dark:text-gray-200 drop-shadow-sm ${
-            status.color === 'text-green-600' ? 'dark:text-green-400' :
-            status.color === 'text-yellow-600' ? 'dark:text-yellow-400' :
-            status.color === 'text-red-600' ? 'dark:text-red-400' :
-            'dark:text-gray-400'
-          }`}>
+          <span className={`text-sm font-medium ${status.color}`}>
             {status.text}
           </span>
         </div>
         
-        <div className="flex items-center gap-4">
-          <span className="text-purple-600/90 dark:text-purple-300 font-black drop-shadow-sm transition-colors duration-300">
-            Hola, {user.username}
-          </span>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <ThemeToggle />
+        </div>
+        
+        <div className="flex items-center gap-4 pl-4 border-l border-slate-200/50 dark:border-gray-600/50">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-white text-sm font-bold uppercase">
+                {user.username?.charAt(0)}
+              </span>
+            </div>
+            <span className="text-slate-700 dark:text-slate-300 font-medium hidden sm:block">
+              Hola, {user.username}
+            </span>
+          </div>
           <button
             onClick={logout}
-            className="flex items-center gap-3 bg-gradient-to-r from-red-500 to-pink-500 dark:from-red-600 dark:to-pink-600 hover:from-red-600 hover:to-pink-600 dark:hover:from-red-700 dark:hover:to-pink-700 text-white px-5 py-3 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl"
+            className="flex items-center gap-2 bg-slate-100 dark:bg-gray-800 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 px-4 py-2 rounded-lg transition-all duration-300 border border-slate-200/60 dark:border-gray-600/60 hover:border-rose-200 dark:hover:border-rose-700/30"
           >
             <FiLogOut size={18} />
-            <span className="font-medium">Cerrar sesión</span>
+            <span className="font-medium hidden md:block">Salir</span>
           </button>
         </div>
       </div>

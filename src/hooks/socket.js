@@ -17,7 +17,7 @@ class SocketManager {
     // Validar que el user y user ID existan y sean válidos
     if (!user || !userId || userId === 'undefined' || userId === 'null') {
       console.error('❌ User ID inválido para conectar socket:', userId);
-      console.log('🔍 Objeto user completo:', user);
+  
       this.disconnect();
       return Promise.reject(new Error('User ID inválido'));
     }
@@ -42,8 +42,6 @@ class SocketManager {
           this.socket.disconnect();
         }
 
-        console.log("🔌 Conectando socket con userId:", userId);
-
         // Validar que el userId sea un ObjectId válido (24 caracteres hex)
         const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(userId);
         if (!isValidObjectId) {
@@ -64,7 +62,6 @@ class SocketManager {
         });
 
         this.socket.on("connect", () => {
-          console.log("✅ Socket global conectado:", this.socket.id, "userId:", userId);
           this.isInitializing = false;
           
           this.connectCallbacks.forEach(callback => callback(this.socket));
@@ -74,7 +71,7 @@ class SocketManager {
         });
 
         this.socket.on("disconnect", (reason) => {
-          console.log("🔌 Socket global desconectado:", reason);
+          
         });
 
         this.socket.on("connect_error", (error) => {
@@ -85,7 +82,7 @@ class SocketManager {
         });
 
         this.socket.on("reconnect", (attemptNumber) => {
-          console.log(`🔌 Socket reconectado después de ${attemptNumber} intentos`);
+      
           if (this.currentUser) {
             this.socket.emit("reauthenticate", { userId: this.currentUser._id });
           }

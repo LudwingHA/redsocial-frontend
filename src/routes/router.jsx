@@ -14,6 +14,7 @@ import { ChatPage } from "../components/Chat/ChatPage";
 import { ProfileEditPage } from "../components/Profile/ProfileEditPage";
 import { NotificationsPage } from "../components/Notification/NotificationsPage";
 import { UserProfilePage } from "../components/Profile/UserProfilePage";
+import NotFound from "../components/Errors/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -24,11 +25,11 @@ export const router = createBrowserRouter([
       </PrivateRoute>
     ),
     children: [
-      { index: true, element: <FeedPage /> },               
-      { path: "chat", element: <ChatPage /> },               
-      { path: "profile/:userId", element: <UserProfilePage /> }, 
+      { index: true, element: <FeedPage /> },
+      { path: "chat", element: <ChatPage /> },
+      { path: "profile/:userId", element: <UserProfilePage /> },
       { path: "notifications", element: <NotificationsPage /> },
-      {path: "settings", element: <ProfileEditPage></ProfileEditPage>} 
+      { path: "settings", element: <ProfileEditPage></ProfileEditPage> },
     ],
   },
   {
@@ -46,5 +47,9 @@ export const router = createBrowserRouter([
         <Register />
       </PublicRoute>
     ),
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

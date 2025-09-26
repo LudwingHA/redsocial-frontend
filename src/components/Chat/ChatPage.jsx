@@ -22,6 +22,34 @@ export function ChatPage() {
   const [availableUsers, setAvailableUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  // Detectar cambios en el tamaño de la ventana
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      // En móvil, el sidebar empieza cerrado; en desktop, abierto
+      setSidebarOpen(!mobile);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Ejecutar al montar
+    
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Cerrar sidebar en móvil cuando se selecciona un chat
+  useEffect(() => {
+    if (isMobile && activeChat) {
+      setSidebarOpen(false);
+    }
+  }, [activeChat, isMobile]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   // Cargar usuarios disponibles
   useEffect(() => {
@@ -47,7 +75,6 @@ export function ChatPage() {
       try {
         const res = await chatAPI.getUserChats();
         if (res.success) {
-          // Enriquecer cada chat con lastMessageSender si viene en messages
           const enriched = (res.chats || []).map((c) => {
             const lastMsg = (c.messages && c.messages.length) ? c.messages[c.messages.length - 1] : null;
             return {
@@ -74,9 +101,6 @@ export function ChatPage() {
     if (!socket) return;
 
     const handleNewMessage = ({ chatId, message, tempId }) => {
-      // DEBUG: descomenta si quieres ver payloads
-      // console.log("socket newMessage ->", { chatId, message, tempId });
-
       setChats((prev) => {
         if (!Array.isArray(prev) || prev.length === 0) return prev;
 
@@ -95,27 +119,20 @@ export function ChatPage() {
         });
 
         if (!found) {
-          // Si no está en la lista, no lo agregamos automáticamente para evitar datos parciales.
-          // Si quieres, aquí podrías fetchear el chat completo y agregarlo.
           return prev;
         }
 
         next.sort((a, b) => new Date(b.lastMessage || 0) - new Date(a.lastMessage || 0));
         return [...next];
       });
-
-      // Si el chat abierto es el mismo, dejar que ChatWindow reciba el mensaje (evita duplicados)
-      // ChatWindow también escucha "newMessage" y reemplaza tempId/maneja mensajes.
     };
 
     const handleNewChat = (newChat) => {
       setChats((prev) => {
         const exists = prev.some((c) => sameId(c._id, newChat._id));
         if (exists) {
-          // actualizar datos si ya existe
           return prev.map((c) => (sameId(c._id, newChat._id) ? { ...c, ...newChat } : c));
         }
-        // insertar al inicio
         return [newChat, ...prev];
       });
     };
@@ -129,7 +146,7 @@ export function ChatPage() {
     };
   }, [socket, setChats, activeChat]);
 
-  // Función para abrir chat (no añade chats; solo carga mensajes y se une a la sala)
+  // Función para abrir chat
   const openChat = async (chat) => {
     setActiveChat(chat);
     try {
@@ -146,7 +163,7 @@ export function ChatPage() {
     }
   };
 
-  // Iniciar nuevo chat (evitar duplicados)
+  // Iniciar nuevo chat
   const startChat = async (participantId) => {
     try {
       const res = await chatAPI.createChat(participantId);
@@ -179,31 +196,44 @@ export function ChatPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-600">Inicia sesión para usar el chat</p>
+        <p className="text-gray-600 dark:text-gray-400">Inicia sesión para usar el chat</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-[calc(100vh-140px)]">
-      <div className="w-96">
+    <div className="flex h-[calc(100vh-140px)] relative overflow-hidden">
+      {/* Overlay para móvil */}
+      {isMobile && sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar - CORREGIDO */}
+      <div className={`
+        fixed lg:relative z-30 h-full bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800
+        transform transition-transform duration-300 ease-in-out
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0 lg:w-96 w-80
+      `}>
         {/* Buscador */}
-        <div className="p-6 border-b">
+        <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-800">
           <div className="relative">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2" />
+            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Buscar chats o usuarios..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12"
+              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
         </div>
 
         <ChatSidebar
           chats={filteredChats}
-          setChats={setChats}
           currentUser={user}
           onlineUsers={onlineUsers}
           onChatClick={openChat}
@@ -211,7 +241,8 @@ export function ChatPage() {
         />
       </div>
 
-      <div className="flex-1">
+      {/* Contenido principal */}
+      <div className="flex-1 min-w-0 relative z-10">
         {activeChat ? (
           <ChatWindow
             activeChat={activeChat}
@@ -221,9 +252,16 @@ export function ChatPage() {
             socket={socket}
             isConnected={isConnected}
             waitForConnection={waitForConnection}
+            onMenuToggle={toggleSidebar}
+            sidebarOpen={sidebarOpen}
           />
         ) : (
-          <UsersList users={filteredUsers} onUserSelect={startChat} searchTerm={searchTerm} />
+          <UsersList 
+            users={filteredUsers} 
+            onUserSelect={startChat} 
+            searchTerm={searchTerm}
+            onMenuToggle={toggleSidebar}
+          />
         )}
       </div>
     </div>

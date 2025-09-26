@@ -95,166 +95,155 @@ export function ProfileEditPage() {
     );
   }
 
-  return (
-    <div className="max-w-4xl mx-auto">
-      <div className="bg-gradient-to-b from-white/80 to-gray-50/50 dark:from-gray-800/80 dark:to-gray-900/50 transition-colors duration-300">
-        {/* Header del perfil */}
-        <div className="p-4 text-white bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-500 dark:from-purple-950 dark:via-blue-900 dark:to-cyan-800 shadow-lg transition-colors duration-300">
-          <h2 className="text-2xl font-bold mb-2">Editar Perfil</h2>
-          <p className="opacity-90">Actualiza tu información personal</p>
+return (
+  <div className="max-w-2xl mx-auto p-4">
+    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-gray-700/60 overflow-hidden transition-all duration-300">
+      <div className="p-6 border-b border-slate-200/60 dark:border-gray-700/60">
+        <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Editar Perfil</h2>
+        <p className="text-slate-600 dark:text-slate-300 mt-1">Actualiza tu información personal</p>
+      </div>
+
+      {message.text && (
+        <div className={`p-4 ${
+          message.type === 'success' 
+            ? 'bg-emerald-50/80 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border-l-4 border-emerald-500' 
+            : 'bg-rose-50/80 dark:bg-rose-900/20 text-rose-700 dark:text-rose-300 border-l-4 border-rose-500'
+        }`}>
+          {message.text}
+        </div>
+      )}
+
+      <div className="p-6">
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative group">
+            <img
+              src={avatarPreview}
+              alt="Avatar"
+              className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-800 shadow-lg"
+            />
+            <label className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <FiCamera size={24} className="text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">Haz clic para cambiar el avatar</p>
         </div>
 
-        {/* Mensajes de estado */}
-        {message.text && (
-          <div className={`p-4 ${
-            message.type === 'success' 
-              ? 'bg-green-50 text-green-700 border-l-4 border-green-500' 
-              : 'bg-red-50 text-red-700 border-l-4 border-red-500'
-          }`}>
-            {message.text}
-          </div>
-        )}
-
-        <div className="p-6">
-          {/* Avatar Section */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative group">
-              <img
-                src={avatarPreview}
-                alt="Avatar"
-                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-              />
-              <label className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <FiCamera size={24} className="text-white" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarChange}
-                  className="hidden"
-                />
-              </label>
-            </div>
-            <p className="text-gray-600 mt-2 dark:text-amber-50">Haz clic en la imagen para cambiar el avatar</p>
-          </div>
-
-          {/* Formulario */}
-          <form onSubmit={handleSaveProfile} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Username */}
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
-                  <FiUser size={16} />
-                  <span>Nombre de usuario</span>
-                </label>
-                <input
-                  type="text"
-                  name="username"
-                  value={form.username}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
-                  required
-                />
-              </div>
-
-              {/* Email */}
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
-                  <FiMail size={16} />
-                  <span>Correo electrónico</span>
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
-                  required
-                />
-              </div>
-
-              {/* Teléfono */}
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
-                  <FiPhone size={16} />
-                  <span>Teléfono</span>
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
-                />
-              </div>
-
-              {/* Edad */}
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
-                  <FiCalendar size={16} />
-                  <span>Edad</span>
-                </label>
-                <input
-                  type="number"
-                  name="age"
-                  value={form.age}
-                  onChange={handleChange}
-                  min="1"
-                  max="120"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
-                />
-              </div>
-
-              {/* Ubicación */}
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
-                  <FiMapPin size={16} />
-                  <span>Ubicación</span>
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={form.location}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:text-amber-50"
-                />
-              </div>
-            </div>
-
-            {/* Bio */}
+        <form onSubmit={handleSaveProfile} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 dark:text-amber-50">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                 <FiUser size={16} />
-                <span>Biografía</span>
+                <span>Usuario</span>
               </label>
-              <textarea
-                name="bio"
-                value={form.bio}
+              <input
+                type="text"
+                name="username"
+                value={form.username}
                 onChange={handleChange}
-                rows={4}
-                placeholder="Cuéntanos algo sobre ti..."
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none dark:text-amber-50"
-                maxLength={500}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+                required
               />
-              <p className="text-xs text-gray-500 text-right">
-                {form.bio.length}/500 caracteres
-              </p>
             </div>
 
-            {/* Botón de guardar */}
-            <div className="flex justify-end pt-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
-              >
-                <FiSave size={18} />
-                <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
-              </button>
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <FiMail size={16} />
+                <span>Email</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+                required
+              />
             </div>
-          </form>
-        </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <FiPhone size={16} />
+                <span>Teléfono</span>
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                <FiCalendar size={16} />
+                <span>Edad</span>
+              </label>
+              <input
+                type="number"
+                name="age"
+                value={form.age}
+                onChange={handleChange}
+                min="1"
+                max="120"
+                className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <FiMapPin size={16} />
+              <span>Ubicación</span>
+            </label>
+            <input
+              type="text"
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+              <FiUser size={16} />
+              <span>Biografía</span>
+            </label>
+            <textarea
+              name="bio"
+              value={form.bio}
+              onChange={handleChange}
+              rows={3}
+              placeholder="Cuéntanos algo sobre ti..."
+              className="w-full px-3 py-2 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-slate-900 dark:text-white transition-all duration-300"
+              maxLength={500}
+            />
+            <p className="text-xs text-slate-500 dark:text-slate-400 text-right">
+              {form.bio.length}/500 caracteres
+            </p>
+          </div>
+
+          <div className="flex justify-end pt-4">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-sm disabled:opacity-50 font-medium"
+            >
+              <FiSave size={16} />
+              <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  );
+  </div>
+);
 }
 export default ProfileEditPage

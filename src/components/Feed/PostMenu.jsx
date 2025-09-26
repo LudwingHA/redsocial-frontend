@@ -18,13 +18,13 @@ export function PostMenu({ post }) {
     setIsOpen(false);
   };
 
-  return (
+return (
   <div className="relative">
     <button
       onClick={() => setIsOpen(!isOpen)}
-      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300"
+      className="p-2 rounded-lg hover:bg-slate-100/50 dark:hover:bg-gray-700/50 transition-all duration-300"
     >
-      <FiMoreVertical size={20} className="text-gray-600 dark:text-gray-400" />
+      <FiMoreVertical size={18} className="text-slate-600 dark:text-slate-400" />
     </button>
 
     {isOpen && (
@@ -34,27 +34,27 @@ export function PostMenu({ post }) {
           onClick={() => setIsOpen(false)}
         />
         
-        <div className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 z-20 overflow-hidden transition-colors duration-300">
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-xl shadow-lg border border-slate-200/60 dark:border-gray-700/60 z-20 overflow-hidden transition-all duration-300">
           {isAuthor ? (
             <button
               onClick={handleDelete}
-              className="w-full flex items-center space-x-3 px-4 py-4 text-red-600 dark:text-red-400 hover:bg-gradient-to-r from-red-50 to-pink-50 dark:hover:from-red-900/20 dark:hover:to-pink-900/20 transition-all duration-300"
+              className="w-full flex items-center gap-2 px-3 py-2 text-rose-600 dark:text-rose-400 hover:bg-rose-50/50 dark:hover:bg-rose-900/20 transition-all duration-300 text-sm"
             >
-              <FiTrash2 size={18} />
-              <span className="font-medium">Eliminar publicación</span>
+              <FiTrash2 size={16} />
+              <span>Eliminar</span>
             </button>
           ) : (
             <button
               onClick={handleReport}
-              className="w-full flex items-center space-x-3 px-4 py-4 text-orange-600 dark:text-orange-400 hover:bg-gradient-to-r from-orange-50 to-yellow-50 dark:hover:from-orange-900/20 dark:hover:to-yellow-900/20 transition-all duration-300"
+              className="w-full flex items-center gap-2 px-3 py-2 text-amber-600 dark:text-amber-400 hover:bg-amber-50/50 dark:hover:bg-amber-900/20 transition-all duration-300 text-sm"
             >
-              <FiFlag size={18} />
-              <span className="font-medium">Reportar publicación</span>
+              <FiFlag size={16} />
+              <span>Reportar</span>
             </button>
           )}
         </div>
       </>
     )}
   </div>
-  );
+);
 }

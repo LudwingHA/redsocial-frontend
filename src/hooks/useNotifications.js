@@ -77,7 +77,7 @@ export function useNotifications() {
 
     const handleNewNotification = (notification) => {
       addNotification(notification);
-      console.log("🔔 Nueva notificación:", notification);
+      
     };
 
     const handleUnreadCountUpdated = ({ unreadCount }) => setUnreadCount(unreadCount);

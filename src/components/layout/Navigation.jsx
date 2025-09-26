@@ -23,9 +23,9 @@ const menuItems = [
 export function Navigation() {
   const { user } = useAuth();
   const navigate = useNavigate();
- return (
-  <nav className="w-72 bg-gradient-to-b from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-800/80 shadow-2xl min-h-screen p-6 border-r border-gray-200/60 dark:border-gray-700/60 transition-colors duration-300">
-    <div className="space-y-3">
+return (
+  <nav className="w-full lg:w-80 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-lg lg:min-h-[calc(100vh-80px)] p-4 lg:p-6 border-b lg:border-b-0 lg:border-r border-slate-200/60 dark:border-gray-700/60 transition-all duration-300">
+    <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible">
       {menuItems.map((item) => {
         const Icon = item.icon;
         return (
@@ -34,36 +34,25 @@ export function Navigation() {
             to={item.path}
             end
             className={({ isActive }) =>
-              `w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 group ${
+              `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group min-w-max lg:min-w-0 ${
                 isActive
                   ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg transform scale-105"
-                  : "text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white hover:shadow-md"
+                  : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white hover:shadow-md border border-transparent hover:border-slate-200/60 dark:hover:border-gray-600/60"
               }`
             }
           >
-            <Icon
-              size={22}
-              className={({ isActive }) =>
-                isActive
-                  ? "text-white"
-                  : "text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400"
-              }
-            />
-            <span className="font-semibold text-lg">{item.label}</span>
+            <Icon size={20} />
+            <span className="font-medium text-sm lg:text-base">{item.label}</span>
           </NavLink>
         );
       })}
 
-      {/* Perfil dinámico del usuario logueado */}
       <button
         onClick={() => navigate(`/profile/${user?.id}`)}
-        className="w-full flex items-center space-x-4 px-6 py-4 rounded-2xl transition-all duration-300 group text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-white hover:shadow-md"
+        className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group min-w-max lg:min-w-0 text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-gray-800 hover:text-slate-900 dark:hover:text-white hover:shadow-md border border-transparent hover:border-slate-200/60 dark:hover:border-gray-600/60"
       >
-        <FiUser
-          size={22}
-          className="text-gray-500 dark:text-gray-400 group-hover:text-blue-500 dark:group-hover:text-blue-400"
-        />
-        <span className="font-semibold text-lg">Perfil</span>
+        <FiUser size={20} />
+        <span className="font-medium text-sm lg:text-base">Perfil</span>
       </button>
     </div>
   </nav>
