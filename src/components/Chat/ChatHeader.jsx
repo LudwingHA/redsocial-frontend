@@ -1,7 +1,8 @@
 import React from 'react';
 import { FiWifi, FiWifiOff, FiVideo, FiPhone, FiMoreVertical, FiMenu, FiX } from 'react-icons/fi';
-import { URL_SERVER } from '../../api/url';
+import { URL_FRONTEND, URL_SERVER } from '../../api/url';
 import { useSocket } from '../../auth/context/SocketContext';
+import { Link } from 'react-router-dom';
 
 export function ChatHeader({ user, isConnected, onMenuToggle, sidebarOpen }) {
   const { onlineUsers = [] } = useSocket();
@@ -40,11 +41,13 @@ export function ChatHeader({ user, isConnected, onMenuToggle, sidebarOpen }) {
           </button>
           
           <div className="relative">
+           <Link
+           to={`/profile/${user._id}`}> 
             <img
               src={`${URL_SERVER}${user.avatar}`}
               alt={user.username}
               className="w-10 h-10 lg:w-14 lg:h-14 rounded-full object-cover border-3 lg:border-4 border-white/30 dark:border-gray-800/30 shadow-lg"
-            />
+            /></Link>
             <div
               className={`absolute -bottom-1 -right-1 w-3 h-3 lg:w-4 lg:h-4 rounded-full border-2 lg:border-3 border-white dark:border-gray-800 ${
                 isOnline ? 'bg-green-400' : 'bg-gray-400'

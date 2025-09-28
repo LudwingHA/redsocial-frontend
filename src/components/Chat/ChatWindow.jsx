@@ -280,10 +280,6 @@ export function ChatWindow({
             {typingUsers.length === 1 ? 'Alguien está escribiendo...' : 'Varias personas están escribiendo...'}
           </p>
         )}
-
-        <div className="text-xs text-gray-400 dark:text-gray-500 text-center mt-2">
-          {isConnected ? '✅ Conectado' : '❌ Desconectado'}
-        </div>
       </div>
     </div>
   );

@@ -58,7 +58,14 @@ export function ChatPage() {
       try {
         const res = await chatAPI.getAllUsers();
         if (res.success) {
-          setAvailableUsers(res.users.filter((u) => !sameId(u._id, user._id || user.id)));
+          // Inicializar con estado online
+          const usersWithOnlineStatus = res.users
+            .filter((u) => !sameId(u._id, user._id || user.id))
+            .map(u => ({
+              ...u,
+              isOnline: onlineUsers.some(id => sameId(id, u._id))
+            }));
+          setAvailableUsers(usersWithOnlineStatus);
         }
       } catch (err) {
         console.error(err);
@@ -66,6 +73,18 @@ export function ChatPage() {
     };
     loadUsers();
   }, [user]);
+
+  // Sincronizar availableUsers con onlineUsers en tiempo real
+  useEffect(() => {
+    if (availableUsers.length > 0) {
+      setAvailableUsers(prev => 
+        prev.map(u => ({
+          ...u,
+          isOnline: onlineUsers.some(id => sameId(id, u._id))
+        }))
+      );
+    }
+  }, [onlineUsers]); // Se ejecuta cada vez que onlineUsers cambia
 
   // Cargar chats (inicio)
   useEffect(() => {
@@ -96,55 +115,71 @@ export function ChatPage() {
     loadChats();
   }, [user]);
 
-  // Escuchar sockets: newMessage y newChat
-  useEffect(() => {
-    if (!socket) return;
+// Escuchar sockets: newMessage, newChat y eventos de conexión
+useEffect(() => {
+  if (!socket) return;
 
-    const handleNewMessage = ({ chatId, message, tempId }) => {
-      setChats((prev) => {
-        if (!Array.isArray(prev) || prev.length === 0) return prev;
+  const handleNewMessage = ({ chatId, message, tempId }) => {
+    setChats((prev) => {
+      if (!Array.isArray(prev) || prev.length === 0) return prev;
 
-        let found = false;
-        const next = prev.map((c) => {
-          if (sameId(c._id, chatId)) {
-            found = true;
-            return {
-              ...c,
-              lastMessageContent: message?.content ?? c.lastMessageContent,
-              lastMessage: message?.timestamp ?? (new Date()).toISOString(),
-              lastMessageSender: message?.sender?._id ?? c.lastMessageSender,
-            };
-          }
-          return c;
-        });
-
-        if (!found) {
-          return prev;
+      let found = false;
+      const next = prev.map((c) => {
+        if (sameId(c._id, chatId)) {
+          found = true;
+          return {
+            ...c,
+            lastMessageContent: message?.content ?? c.lastMessageContent,
+            lastMessage: message?.timestamp ?? (new Date()).toISOString(),
+            lastMessageSender: message?.sender?._id ?? c.lastMessageSender,
+          };
         }
-
-        next.sort((a, b) => new Date(b.lastMessage || 0) - new Date(a.lastMessage || 0));
-        return [...next];
+        return c;
       });
-    };
 
-    const handleNewChat = (newChat) => {
-      setChats((prev) => {
-        const exists = prev.some((c) => sameId(c._id, newChat._id));
-        if (exists) {
-          return prev.map((c) => (sameId(c._id, newChat._id) ? { ...c, ...newChat } : c));
-        }
-        return [newChat, ...prev];
-      });
-    };
+      if (!found) {
+        return prev;
+      }
 
-    socket.on("newMessage", handleNewMessage);
-    socket.on("newChat", handleNewChat);
+      next.sort((a, b) => new Date(b.lastMessage || 0) - new Date(a.lastMessage || 0));
+      return [...next];
+    });
+  };
 
-    return () => {
-      socket.off("newMessage", handleNewMessage);
-      socket.off("newChat", handleNewChat);
-    };
-  }, [socket, setChats, activeChat]);
+  const handleNewChat = (newChat) => {
+    setChats((prev) => {
+      const exists = prev.some((c) => sameId(c._id, newChat._id));
+      if (exists) {
+        return prev.map((c) => (sameId(c._id, newChat._id) ? { ...c, ...newChat } : c));
+      }
+      return [newChat, ...prev];
+    });
+  };
+
+  // NUEVO: Escuchar la lista actualizada de usuarios online
+  const handleUpdateOnlineUsers = (users) => {
+    console.log('📱 Lista de usuarios online actualizada:', users);
+    // Este evento ya actualiza onlineUsers en tu SocketContext
+    // Pero también podemos actualizar availableUsers aquí
+    setAvailableUsers(prev => 
+      prev.map(u => ({
+        ...u,
+        isOnline: users.some(id => sameId(id, u._id))
+      }))
+    );
+  };
+
+  // Registrar todos los listeners
+  socket.on("newMessage", handleNewMessage);
+  socket.on("newChat", handleNewChat);
+  socket.on("updateOnlineUsers", handleUpdateOnlineUsers); // ✅ Evento correcto
+
+  return () => {
+    socket.off("newMessage", handleNewMessage);
+    socket.off("newChat", handleNewChat);
+    socket.off("updateOnlineUsers", handleUpdateOnlineUsers);
+  };
+}, [socket, setChats, activeChat]);
 
   // Función para abrir chat
   const openChat = async (chat) => {
@@ -183,7 +218,7 @@ export function ChatPage() {
     }
   };
 
-  // Filtrado para render
+  // Filtrado para render - SIN el .map() adicional
   const filteredChats = chats.filter((chat) => {
     const otherUser = chat.participants.find((p) => !sameId(p._id, user._id || user.id));
     return otherUser?.username?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -191,7 +226,7 @@ export function ChatPage() {
 
   const filteredUsers = availableUsers.filter((u) =>
     u.username?.toLowerCase().includes(searchTerm.toLowerCase())
-  ).map(u => ({ ...u, isOnline: onlineUsers.some(id => sameId(id, u._id)) }));
+  ); // El estado isOnline ya viene en availableUsers
 
   if (!user) {
     return (
