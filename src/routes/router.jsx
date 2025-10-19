@@ -12,7 +12,6 @@ import { AppLayout } from "../components/layout/AppLayout";
 import { FeedPage } from "../components/Feed/FeedPage";
 import { ChatPage } from "../components/Chat/ChatPage";
 import { ProfileEditPage } from "../components/Profile/ProfileEditPage";
-import { NotificationsPage } from "../components/Notification/NotificationsPage";
 import { UserProfilePage } from "../components/Profile/UserProfilePage";
 import NotFound from "../components/Errors/NotFound";
 
@@ -28,7 +27,6 @@ export const router = createBrowserRouter([
       { index: true, element: <FeedPage /> },
       { path: "chat", element: <ChatPage /> },
       { path: "profile/:userId", element: <UserProfilePage /> },
-      { path: "notifications", element: <NotificationsPage /> },
       { path: "settings", element: <ProfileEditPage></ProfileEditPage> },
     ],
   },

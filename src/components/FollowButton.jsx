@@ -47,52 +47,56 @@ export function FollowButton({ currentUserId, targetUserId, size = "medium" }) {
   
   const { padding, text, iconSize, loadingSize } = sizeConfig[size];
   const followingNow = isFollowing(targetUserId);
+// FollowButton.jsx - RETURN COMPLETO Y MEJORADO
 
-  return (
-    <button
-      onClick={handleFollowClick}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      disabled={isLoading || !currentUserId}
-      className={`
-        relative flex items-center justify-center gap-2 rounded-full font-semibold 
-        transition-all duration-400 shadow-lg hover:shadow-xl transform 
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-        group overflow-hidden backdrop-blur-sm
-        ${padding} ${text}
-        ${followingNow 
-          ? (isHovering
-            ? "bg-gradient-to-r from-red-500 to-red-600 text-white border border-red-500"
-            : "bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600")
-          : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border border-blue-500"
-        }
-        ${!isLoading && 'hover:scale-105 active:scale-95'}
-      `}
-    >
-      {/* Efecto de brillo al hover */}
-      <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform group-hover:scale-150"></div>
+return (
+  <button
+    onClick={handleFollowClick}
+    onMouseEnter={() => setIsHovering(true)}
+    onMouseLeave={() => setIsHovering(false)}
+    disabled={isLoading || !currentUserId}
+    className={`
+      relative flex items-center justify-center rounded-lg font-semibold 
+      transition-all duration-300 shadow-sm hover:shadow-md transform 
+      disabled:opacity-50 disabled:cursor-not-allowed text-sm
+      w-auto
+      ${size === 'small' ? 'h-8 px-2' : size === 'large' ? 'h-10 px-4 text-base' : 'h-9 px-3'} 
       
-      {/* Contenido */}
-      <div className="relative z-10 flex items-center gap-2">
-        {isLoading ? (
-          <div className={`${loadingSize} border-2 border-current border-t-transparent rounded-full animate-spin`}></div>
-        ) : followingNow ? (
-          <>
-            {isHovering 
-              ? <FiUserX size={iconSize} className="transition-transform duration-300" />
-              : <FiUserCheck size={iconSize} className="transition-transform duration-300" />
-            }
-            <span className="whitespace-nowrap">
-              {isHovering ? "Dejar de seguir" : "Siguiendo"}
-            </span>
-          </>
-        ) : (
-          <>
-            <FiUserPlus size={iconSize} className="transition-transform duration-300 group-hover:scale-110" />
-            <span className="whitespace-nowrap">Seguir</span>
-          </>
-        )}
-      </div>
-    </button>
-  );
+      ${followingNow 
+        ? (isHovering
+          // Estado: Siguiendo (Hover/Dejar de seguir)
+          ? "bg-red-500 text-white border border-red-500 hover:bg-red-600 active:scale-95"
+          // Estado: Siguiendo (Default)
+          : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600")
+        // Estado: Seguir
+        : "bg-blue-500 hover:bg-blue-600 text-white border border-blue-500 hover:scale-105 active:scale-95"
+      }
+      ${isLoading ? 'opacity-70 cursor-wait' : 'hover:scale-105 active:scale-95'}
+    `}
+  >
+    {/* Contenido (Ícono + Texto) */}
+    <div className="relative z-10 flex items-center gap-1.5">
+      {isLoading ? (
+        <div className={`${loadingSize} border-2 border-current border-t-transparent rounded-full animate-spin`}></div>
+      ) : followingNow ? (
+        <>
+          {/* Ícono dinámico: Check si sigues, X si harás unfollow */}
+          {isHovering 
+            ? <FiUserX size={18} className="transition-transform duration-300" />
+            : <FiUserCheck size={18} className="transition-transform duration-300" />
+          }
+          <span className="whitespace-nowrap">
+            {isHovering ? "Dejar de seguir" : "Siguiendo"}
+          </span>
+        </>
+      ) : (
+        <>
+          {/* Botón Seguir */}
+          <FiUserPlus size={18} className="transition-transform duration-300" />
+          <span className="whitespace-nowrap">Seguir</span>
+        </>
+      )}
+    </div>
+  </button>
+);
 }

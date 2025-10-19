@@ -7,10 +7,12 @@ import {
   FiHeart,
   FiMessageCircle,
   FiSend,
-  FiMoreVertical,
   FiPause,
   FiPlay,
   FiEye,
+  FiChevronLeft,
+  FiChevronRight,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { useAuth } from "../../auth/context/AuthContext";
 import { StoriesList } from "./StoriesList";
@@ -61,12 +63,6 @@ export function StoryViewer() {
     fetchStories();
   }, [fetchStories]);
 
-  // Socket events (mantener igual)
-  useEffect(() => {
-    if (!socket) return;
-    // ... (socket events igual que antes)
-  }, [socket]);
-
   // Progress bar
   useEffect(() => {
     if (!isOpen || !currentStory || isPaused || isLoading) {
@@ -90,35 +86,27 @@ export function StoryViewer() {
     return () => clearInterval(progressRef.current);
   }, [currentStoryIndex, currentUserIndex, isOpen, isPaused, isLoading, currentStory]);
 
-  // **CORRECCIÓN CRÍTICA: Manejo de video mejorado**
+  // Manejo de video
   useEffect(() => {
     if (videoRef.current && currentStory?.type === "video") {
       const video = videoRef.current;
       
       const handleLoadStart = () => {
-        console.log("🔄 Video load start");
         setIsLoading(true);
         setVideoError(null);
       };
       
       const handleLoadedData = () => {
-        console.log("✅ Video loaded data");
         setIsLoading(false);
         setHasInteracted(true);
       };
       
       const handleCanPlay = () => {
-        console.log("🎵 Video can play");
         setIsLoading(false);
       };
       
       const handleError = (e) => {
-        console.error("❌ Video error:", {
-          error: video.error,
-          networkState: video.networkState,
-          readyState: video.readyState,
-          src: video.src
-        });
+        console.error("❌ Video error:", e);
         setIsLoading(false);
         setVideoError("Error al cargar el video");
       };
@@ -128,7 +116,6 @@ export function StoryViewer() {
       video.addEventListener('canplay', handleCanPlay);
       video.addEventListener('error', handleError);
 
-      // Reset video state cuando cambia el story
       video.load();
       
       if (!isPaused && hasInteracted) {
@@ -201,6 +188,7 @@ export function StoryViewer() {
     setVideoError(null);
   };
 
+  // 🎯 FUNCIÓN MEJORADA PARA CERRAR
   const handleClose = useCallback(() => {
     setIsOpen(false);
     setIsPaused(false);
@@ -209,6 +197,8 @@ export function StoryViewer() {
     setShowMessageInput(false);
     setMessage("");
     setVideoError(null);
+    setCurrentStoryIndex(0);
+    setCurrentUserIndex(0);
 
     if (videoRef.current) {
       videoRef.current.pause();
@@ -248,264 +238,234 @@ export function StoryViewer() {
     setShowMessageInput(false);
   };
 
-  // Gestos y teclado (mantener igual)
+  // 🎯 NUEVO: Manejar tecla Escape para cerrar
   useEffect(() => {
-    if (!isOpen || !containerRef.current) return;
-    // ... (gestos igual que antes)
-  }, [isOpen, handleNext, handlePrev, handleClose, togglePause]);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
 
-  if (!isOpen || !currentStory) {
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      // Prevenir scroll del body cuando el modal está abierto
+      document.body.style.overflow = 'hidden';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, handleClose]);
+
+  // 🎯 NUEVO: Cerrar al hacer click fuera del contenido
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
+
+  // Renderizado condicional CORREGIDO
+  if (!isOpen) {
     return <StoriesList stories={stories} onStoryClick={handleStoryClick} currentUser={user} />;
   }
-
-  return (
-    <>
-      <StoriesList stories={stories} onStoryClick={handleStoryClick} currentUser={user} />
-      
-      {/* Story Viewer */}
-      <div className="fixed inset-0 z-[9999] bg-black">
-        <div ref={containerRef} className="relative w-full h-full">
-          {/* Progress Bars */}
-          <div className="absolute top-0 left-0 right-0 z-20 p-3 flex gap-1">
-            {userStories.map((userStoryGroup, userIndex) => (
-              <div key={userIndex} className="flex-1 flex gap-1">
-                {userStoryGroup.map((story, storyIndex) => (
-                  <div
-                    key={story._id}
-                    className={`h-1 rounded-full transition-all duration-100 ${
-                      userIndex < currentUserIndex
-                        ? "bg-white"
-                        : userIndex === currentUserIndex
-                        ? storyIndex <= currentStoryIndex
-                          ? "bg-white"
-                          : "bg-white bg-opacity-40"
-                        : "bg-white bg-opacity-40"
-                    }`}
-                  />
-                ))}
+return (
+  <>
+    {/* Mostrar la lista de stories cuando el visor está cerrado */}
+    <StoriesList stories={stories} onStoryClick={handleStoryClick} currentUser={user} />
+    
+    {/* Modal del Story Viewer (Inmersivo) */}
+    {isOpen && currentStory && (
+      <div 
+        className="fixed inset-0 z-[9999] bg-black flex items-center justify-center animate-in fade-in"
+        onClick={handleBackdropClick}
+      >
+        <div className="relative w-full h-full max-w-sm mx-auto flex flex-col justify-between" ref={containerRef}>
+          
+          {/* 1. Progress Bars */}
+          <div className="absolute top-2 left-2 right-2 z-20 flex gap-1">
+            {currentUserStories.map((story, index) => (
+              <div key={story._id} className="flex-1 h-1 rounded-full bg-white/30 overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-100 ease-linear ${
+                    index < currentStoryIndex 
+                      ? "bg-white" 
+                      : index === currentStoryIndex 
+                      ? "bg-white" 
+                      : "bg-transparent"
+                  }`}
+                  style={{
+                    width: index === currentStoryIndex ? `${progress}%` : 
+                                  index < currentStoryIndex ? '100%' : '0%'
+                  }}
+                />
               </div>
             ))}
           </div>
 
-          {/* Header */}
-          <div className="absolute top-4 left-0 right-0 z-20 px-4">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-3 flex-1 min-w-0">
-                <img
-                  src={currentStory.user?.avatar ? `${URL_SERVER}${currentStory.user.avatar}` : "/default-avatar.png"}
-                  alt={currentStory.user?.username}
-                  className="w-8 h-8 rounded-full border-2 border-white object-cover"
-                />
-                <div className="flex-1 min-w-0">
-                  <span className="text-white font-semibold block truncate">
-                    {currentStory.user?.username || "Usuario"}
+          {/* 2. Header (Avatar, Username, Tiempo, Pausa) */}
+          <div className="absolute top-6 left-0 right-0 z-20 px-4">
+            <div className="flex items-center justify-between">
+              {/* Información del usuario */}
+              <div className="flex items-center space-x-3 flex-1">
+                <div className="w-9 h-9 rounded-full bg-white p-0.5 flex-shrink-0">
+                  <img
+                    src={currentStory.user?.avatar ? `${URL_SERVER}${currentStory.user.avatar}` : "/default-avatar.png"}
+                    alt={currentStory.user?.username}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-white font-bold text-sm block truncate">
+                    {currentStory.user?.username}
                   </span>
                   <span className="text-gray-300 text-xs block">
                     {currentStory.createdAt ? new Date(currentStory.createdAt).toLocaleTimeString([], {
-                      hour: "2-digit", minute: "2-digit",
+                      hour: "2-digit", minute: "2-digit", hour12: false,
                     }) : ""}
                   </span>
                 </div>
               </div>
               
+              {/* Controles de pausa y cierre */}
               <div className="flex items-center space-x-2">
                 <button
                   onClick={togglePause}
-                  className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+                  className="p-2 text-white hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                  title={isPaused ? "Reproducir" : "Pausar"}
                 >
                   {isPaused ? <FiPlay size={20} /> : <FiPause size={20} />}
                 </button>
                 <button
                   onClick={handleClose}
-                  className="p-2 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
+                  className="p-2 text-white hover:bg-white/20 rounded-full transition-colors backdrop-blur-sm"
+                  title="Cerrar (Esc)"
                 >
-                  <FiX size={20} />
+                  <FiX size={24} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* **PARTE CRÍTICA - CONTENIDO DEL STORY MEJORADO** */}
-          <div className="relative w-full h-full flex items-center justify-center">
-            {isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-              </div>
-            )}
-
-            {videoError && (
-              <div className="absolute inset-0 flex items-center justify-center z-20 bg-black bg-opacity-80">
-                <div className="text-center text-white">
-                  <div className="text-red-400 mb-2">❌</div>
-                  <p className="text-lg font-semibold mb-2">Error con el video</p>
-                  <p className="text-sm text-gray-300 mb-4">{videoError}</p>
-                  <button
-                    onClick={() => {
-                      setVideoError(null);
-                      setHasInteracted(false);
-                      if (videoRef.current) {
-                        videoRef.current.load();
-                      }
-                    }}
-                    className="px-4 py-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all"
-                  >
-                    Reintentar
-                  </button>
+          {/* 3. Contenido del Story y Controles Laterales */}
+          <div className="flex-1 relative w-full flex items-center justify-center">
+            
+            {/* Contenido Media */}
+            <div className="relative w-full h-full">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center z-10 bg-black/50">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-white"></div>
                 </div>
-              </div>
-            )}
+              )}
+              {videoError && (
+                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/70 text-white p-4">
+                    <FiAlertCircle size={32} className="text-red-500 mb-3" />
+                    <p className="text-center font-semibold">{videoError}. Intenta deslizar.</p>
+                 </div>
+              )}
 
-            {currentStory.type === "image" ? (
-              <img
-                src={`${URL_SERVER}${currentStory.mediaUrl}`}
-                alt="story"
-                className="max-w-full max-h-full object-contain"
-                onError={(e) => {
-                  console.error("❌ Error cargando imagen:", currentStory.mediaUrl);
-                  e.target.src = "/default-image.png";
-                }}
-              />
-            ) : (
-              <div className="relative w-full h-full flex items-center justify-center">
-                {/* **REPRODUCTOR DE VIDEO QUE FUNCIONA** */}
+              {currentStory.type === "image" ? (
+                <img
+                  src={`${URL_SERVER}${currentStory.mediaUrl}`}
+                  alt="story"
+                  className="w-full h-full object-contain"
+                />
+              ) : (
                 <video
                   ref={videoRef}
                   src={`${URL_SERVER}${currentStory.mediaUrl}`}
                   muted
                   autoPlay={!isPaused && hasInteracted}
                   playsInline
-                  controls={false}
-                  className="max-w-full max-h-full object-contain"
+                  className="w-full h-full object-contain"
                   onEnded={handleNext}
                   onClick={handleVideoInteraction}
-                  onLoadedData={() => {
-                    console.log("✅ Video cargado correctamente");
-                    setHasInteracted(true);
-                  }}
-                  onError={(e) => {
-                    console.error("❌ Error en elemento video:", {
-                      src: `${URL_SERVER}${currentStory.mediaUrl}`,
-                      error: e.target.error,
-                      networkState: e.target.networkState,
-                      readyState: e.target.readyState
-                    });
-                    setVideoError("Error al cargar el video. Intenta con otro formato.");
-                  }}
-                  onLoadStart={() => console.log("🔄 Cargando video...")}
-                  onCanPlay={() => console.log("🎵 Video puede reproducirse")}
-                  onCanPlayThrough={() => console.log("🎵 Video puede reproducirse completamente")}
                 />
-                
-                {/* Estado de carga mejorado */}
-                {!hasInteracted && currentStory.type === "video" && !videoError && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-80">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mb-4"></div>
-                    <p className="text-white text-sm mb-4">Preparando video...</p>
-                    <button
-                      onClick={() => {
-                        setHasInteracted(true);
-                        if (videoRef.current) {
-                          videoRef.current.play().catch((error) => {
-                            console.error("Error al reproducir:", error);
-                            setVideoError("No se pudo reproducir el video");
-                            videoRef.current.load();
-                          });
-                        }
-                      }}
-                      className="px-6 py-3 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all text-white flex items-center space-x-2"
-                    >
-                      <FiPlay size={20} />
-                      <span>Reproducir</span>
-                    </button>
-                  </div>
-                )}
+              )}
+              
+              {/* Texto de la Story (Opcional, si existe) */}
+              {currentStory.caption && (
+                <div className="absolute bottom-10 left-0 right-0 p-4 z-10 bg-gradient-to-t from-black/50 to-transparent">
+                    <p className="text-white text-base font-medium text-center">{currentStory.caption}</p>
+                </div>
+              )}
+            </div>
 
-                {/* Indicador de pausa */}
-                {isPaused && hasInteracted && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
-                    <div className="p-4 bg-black bg-opacity-50 rounded-full">
-                      <FiPlay size={40} className="text-white" />
-                    </div>
-                  </div>
-                )}
+            {/* Zonas de Clic para Navegación (Superpuestas) */}
+            <div className="absolute inset-0 flex justify-between">
+              <div className="w-1/3 h-full" onClick={(e) => { e.stopPropagation(); handlePrev(); }}></div>
+              <div className="w-1/3 h-full" onClick={(e) => { e.stopPropagation(); handleVideoInteraction(); }}></div>
+              <div className="w-1/3 h-full" onClick={(e) => { e.stopPropagation(); handleNext(); }}></div>
+            </div>
+          </div>
+          
+          {/* 4. Footer con Acciones */}
+          {/* CORRECCIÓN APLICADA: mb-16 eleva el footer sobre la navbar inferior en móvil */}
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-4 mb-16 lg:mb-4 transition-all duration-300">
+            <div className="flex items-center space-x-3">
+              {/* Input de Mensaje Rápido */}
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Envía un mensaje..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onFocus={() => setIsPaused(true)}
+                  onBlur={() => setIsPaused(false)}
+                  className="w-full bg-white/20 backdrop-blur-lg border border-white/30 rounded-full px-5 py-3 text-white placeholder-white/70 focus:outline-none focus:border-white focus:bg-white/30 transition-colors text-sm"
+                />
+              </div>
+              
+              {/* Botones de acción */}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handleLike}
+                  className={`p-3 rounded-full backdrop-blur-lg transition-all ${
+                    isLiked
+                      ? "bg-red-500 text-white animate-pop"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                  }`}
+                  title="Me gusta"
+                >
+                  <FiHeart size={20} fill={isLiked ? "currentColor" : "none"} />
+                </button>
+                <button 
+                  onClick={handleSendMessage}
+                  disabled={!message.trim()}
+                  className={`p-3 rounded-full backdrop-blur-lg transition-all ${
+                    message.trim()
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-white/20 text-white/50 cursor-not-allowed"
+                  }`}
+                  title="Enviar"
+                >
+                  <FiSend size={20} />
+                </button>
+              </div>
+            </div>
+            
+            {/* Vistas (Solo si el story es del usuario actual) */}
+            {currentStory.user?._id === user?._id && (
+              <div className="absolute top-[-30px] left-1/2 transform -translate-x-1/2 flex items-center space-x-2 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm cursor-pointer hover:bg-black/60 transition-colors">
+                <FiEye size={16} className="text-white" />
+                <span className="text-white text-xs font-semibold">
+                  {currentStory.views?.length || 0} Vistas
+                </span>
               </div>
             )}
           </div>
-
-          {/* Overlay de navegación */}
-          <div className="absolute inset-0 flex">
-            <div className="flex-1 cursor-pointer" onClick={handlePrev} />
-            <div className="flex-1 cursor-pointer" onClick={handleNext} />
-          </div>
-
-          {/* Footer con acciones */}
-          <div className="absolute bottom-6 left-0 right-0 z-20 px-4">
-            <div className="flex items-center justify-between">
-              {showMessageInput ? (
-                <form onSubmit={handleSendMessage} className="flex-1 flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Envía un mensaje..."
-                    className="flex-1 bg-white bg-opacity-20 backdrop-blur-sm border border-white border-opacity-30 rounded-full px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white"
-                    autoFocus
-                  />
-                  <button
-                    type="submit"
-                    disabled={!message.trim()}
-                    className="p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-full transition-colors disabled:opacity-50"
-                  >
-                    <FiSend size={20} />
-                  </button>
-                </form>
-              ) : (
-                <>
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      placeholder="Envía un mensaje..."
-                      onClick={() => setShowMessageInput(true)}
-                      className="w-full bg-white bg-opacity-20 backdrop-blur-sm border border-white border-opacity-30 rounded-full px-4 py-3 text-white placeholder-gray-300 focus:outline-none focus:border-white cursor-text"
-                      readOnly
-                    />
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 ml-3">
-                    <button
-                      onClick={handleLike}
-                      className={`p-3 rounded-full backdrop-blur-sm transition-all ${
-                        isLiked
-                          ? "bg-red-500 bg-opacity-90 text-white"
-                          : "bg-white bg-opacity-20 text-white hover:bg-opacity-30"
-                      }`}
-                    >
-                      <FiHeart size={24} fill={isLiked ? "currentColor" : "none"} />
-                    </button>
-                    <button 
-                      onClick={() => setShowMessageInput(true)}
-                      className="p-3 bg-white bg-opacity-20 text-white rounded-full backdrop-blur-sm hover:bg-opacity-30 transition-all"
-                    >
-                      <FiMessageCircle size={24} />
-                    </button>
-                    <button className="p-3 bg-white bg-opacity-20 text-white rounded-full backdrop-blur-sm hover:bg-opacity-30 transition-all">
-                      <FiMoreVertical size={24} />
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Contador de vistas */}
-          {currentStory.views && currentStory.views.length > 0 && (
-            <div className="absolute bottom-20 left-4 flex items-center space-x-1 text-white text-sm bg-black bg-opacity-50 backdrop-blur-sm px-3 py-1 rounded-full">
-              <FiEye size={14} />
-              <span>{currentStory.views.length}</span>
-            </div>
-          )}
         </div>
       </div>
-    </>
-  );
-}
+    )}
+    <style jsx global>{`
+      .custom-scrollbar-hidden::-webkit-scrollbar {
+        display: none;
+      }
+      .custom-scrollbar-hidden {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+      }
+    `}</style>
+  </>
+);
+};

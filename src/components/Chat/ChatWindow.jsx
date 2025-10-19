@@ -188,99 +188,114 @@ export function ChatWindow({
   const otherUser = activeChat.participants.find(
     (p) => p._id !== (currentUser._id || currentUser.id)
   );
+// ChatWindow.jsx - RETURN Mejorado
 
-  return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-white/80 to-gray-50/50 dark:from-gray-800/80 dark:to-gray-900/50 transition-colors duration-300">
-      <ChatHeader 
-        user={otherUser} 
-        isConnected={isConnected}
-        onMenuToggle={onMenuToggle}
-        sidebarOpen={sidebarOpen}
+return (
+  <div className="flex flex-col h-full bg-white dark:bg-gray-900 transition-colors duration-300">
+    <ChatHeader 
+      user={otherUser} 
+      isConnected={isConnected}
+      onMenuToggle={onMenuToggle}
+      sidebarOpen={sidebarOpen}
+    />
+
+    {/* ÁREA DE MENSAJES */}
+    <div 
+      ref={messagesContainerRef}
+      className="flex-1 overflow-y-auto custom-scrollbar pt-2 pb-2 relative"
+      onScroll={checkScrollPosition}
+    >
+      <MessageList
+        messages={messages}
+        currentUser={currentUser}
+        typingUsers={typingUsers}
+        activeChat={activeChat}
       />
-
-      {/* ÁREA DE MENSAJES SIN SCROLLBAR VISIBLE */}
-      <div 
-        ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto scrollbar-hide"
-        onScroll={checkScrollPosition}
-      >
-        <MessageList
-          messages={messages}
-          currentUser={currentUser}
-          typingUsers={typingUsers}
-          activeChat={activeChat}
-        />
-        
-        {/* Botón para scroll al final */}
-        {showScrollButton && (
-          <button
-            onClick={scrollToBottom}
-            className="fixed bottom-24 right-6 lg:right-8 bg-blue-500 text-white p-3 rounded-full shadow-lg hover:bg-blue-600 transition-all duration-300 z-10 animate-bounce"
-          >
-            <FiArrowDown size={20} />
-          </button>
-        )}
-      </div>
-
-      {/* ÁREA DE ENTRADA DE TEXTO */}
-      <div className="flex-shrink-0 border-t border-gray-200/50 dark:border-gray-700/50 p-4 lg:p-6 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm transition-colors duration-300">
-        <form onSubmit={sendMessage} className="flex space-x-3 lg:space-x-4 items-center">
-          <div className="flex space-x-2 lg:space-x-3 flex-shrink-0">
-            <button
-              type="button"
-              className="p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg lg:rounded-xl transition-all duration-300"
-              title="Adjuntar archivo"
-            >
-              <FiPaperclip size={18} className="lg:w-5 lg:h-5" />
-            </button>
-            <button
-              type="button"
-              className="p-2 lg:p-3 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg lg:rounded-xl transition-all duration-300"
-              title="Emojis"
-            >
-              <FiSmile size={18} className="lg:w-5 lg:h-5" />
-            </button>
-          </div>
-
-          <input
-            value={text}
-            onChange={(e) => {
-              setText(e.target.value);
-              handleTyping();
-            }}
-            onKeyPress={handleKeyPress}
-            placeholder={isConnected ? "Escribe un mensaje..." : "Conectando..."}
-            className="flex-1 px-4 lg:px-6 py-3 lg:py-4 border border-gray-300 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm transition-all duration-300 disabled:opacity-50 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm lg:text-base"
-            disabled={!isConnected || sending}
-            maxLength={1000}
-          />
-
-          <button
-            type="submit"
-            disabled={!text.trim() || !isConnected || sending}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-600 dark:to-purple-600 text-white p-3 lg:p-4 rounded-full transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 flex-shrink-0"
-            title={!isConnected ? "Conectando..." : "Enviar mensaje"}
-          >
-            {sending ? (
-              <div className="w-4 h-4 lg:w-5 lg:h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            ) : (
-              <FiSend size={16} className="lg:w-5 lg:h-5" />
-            )}
-          </button>
-        </form>
-
-        {!isConnected && (
-          <p className="text-xs lg:text-sm text-red-500 dark:text-red-400 mt-3 text-center font-medium bg-red-50/50 dark:bg-red-900/20 py-2 rounded-lg">
-            🔄 Conectando al chat...
-          </p>
-        )}
-
-        {isConnected && typingUsers.length > 0 && (
-          <p className="text-xs lg:text-sm text-blue-500 dark:text-blue-400 mt-2 text-center font-medium bg-blue-50/50 dark:bg-blue-900/20 py-1 rounded-lg">
-            {typingUsers.length === 1 ? 'Alguien está escribiendo...' : 'Varias personas están escribiendo...'}
-          </p>
-        )}
-      </div>
+      
+      {/* Botón para scroll al final */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToBottom}
+          className="fixed bottom-24 right-6 lg:right-8 bg-blue-500 text-white p-3 rounded-full shadow-xl hover:bg-blue-600 transition-all duration-300 z-10 animate-bounce"
+        >
+          <FiArrowDown size={20} />
+        </button>
+      )}
     </div>
-  );
+
+    {/* ÁREA DE ENTRADA DE TEXTO */}
+    <div className="flex-shrink-0 border-t border-gray-200/50 dark:border-gray-700/50 p-4 lg:p-4 bg-white dark:bg-gray-900">
+      <form onSubmit={sendMessage} className="flex space-x-3 lg:space-x-4 items-end">
+        
+        {/* Botones de Media y Emojis */}
+        <div className="flex space-x-2 flex-shrink-0">
+          <button
+            type="button"
+            className="p-3 text-gray-500 dark:text-gray-400 hover:text-purple-500 dark:hover:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-300"
+            title="Adjuntar archivo"
+          >
+            <FiPaperclip size={20} />
+          </button>
+          <button
+            type="button"
+            className="p-3 text-gray-500 dark:text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors duration-300"
+            title="Emojis"
+          >
+            <FiSmile size={20} />
+          </button>
+        </div>
+
+        {/* Campo de Texto */}
+        <textarea
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            handleTyping();
+          }}
+          onKeyPress={handleKeyPress}
+          placeholder={isConnected ? "Escribe un mensaje..." : "Conectando..."}
+          className="flex-1 resize-none h-[50px] overflow-y-auto px-5 py-3 border border-gray-300 dark:border-gray-700 rounded-3xl focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-800 transition-all duration-300 disabled:opacity-50 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm lg:text-base shadow-inner"
+          disabled={!isConnected || sending}
+          maxLength={1000}
+        />
+
+        {/* Botón de Enviar */}
+        <button
+          type="submit"
+          disabled={!text.trim() || !isConnected || sending}
+          className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-3 lg:p-4 rounded-full transition-all duration-300 shadow-xl disabled:opacity-30 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95 flex-shrink-0"
+          title={!isConnected ? "Conectando..." : "Enviar mensaje"}
+        >
+          {sending ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <FiSend size={20} />
+          )}
+        </button>
+      </form>
+
+      {/* Indicadores de estado */}
+      {isConnected && typingUsers.length > 0 && (
+        <p className="text-xs lg:text-sm text-blue-500 dark:text-blue-400 mt-2 ml-4 font-medium">
+          {typingUsers.length === 1 ? 'Escribiendo...' : `${typingUsers.length} están escribiendo...`}
+        </p>
+      )}
+      {!isConnected && (
+        <p className="text-xs lg:text-sm text-red-500 dark:text-red-400 mt-2 ml-4 font-medium">
+          🔄 Conexión perdida, reconectando...
+        </p>
+      )}
+    </div>
+    <style jsx global>{`
+      /* Ocultar scrollbar pero permitir scroll */
+      .scrollbar-hide {
+        -ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none; /* Chrome, Safari and Opera */
+      }
+    `}</style>
+  </div>
+);
 }

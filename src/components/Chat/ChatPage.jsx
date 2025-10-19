@@ -236,71 +236,75 @@ useEffect(() => {
     );
   }
 
-  return (
-    <div className="flex h-[calc(100vh-140px)] relative overflow-hidden">
-      {/* Overlay para móvil */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+  // ChatPage.jsx - RETURN Mejorado
+
+return (
+  // Altura total de la pantalla menos el padding del AppLayout (h-[calc(100vh-XX)] se hereda del padre)
+  <div className="flex h-screen max-h-[calc(100vh-96px)] lg:max-h-[calc(100vh-144px)] relative overflow-hidden rounded-xl shadow-2xl bg-white dark:bg-gray-900 border border-gray-200/50 dark:border-gray-800/50">
+    
+    {/* Overlay para móvil (cuando el sidebar está abierto) */}
+    {isMobile && sidebarOpen && (
+      <div 
+        className="fixed inset-0 bg-black/40 z-20 lg:hidden backdrop-blur-sm animate-in fade-in"
+        onClick={() => setSidebarOpen(false)}
+      />
+    )}
+
+    {/* Sidebar - LISTA DE CHATS */}
+    <div className={`
+      fixed lg:relative z-30 h-full bg-white dark:bg-gray-950/95 backdrop-blur-md
+      transform transition-transform duration-300 ease-in-out
+      ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      lg:translate-x-0 lg:w-80 xl:w-96 w-full sm:w-80 shadow-2xl lg:shadow-none
+    `}>
+      {/* Buscador */}
+      <div className="p-4 lg:p-4 border-b border-gray-200 dark:border-gray-800">
+        <div className="relative">
+          <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <input
+            type="text"
+            placeholder="Buscar chats o usuarios..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-gray-100 dark:bg-gray-800 border border-transparent rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 shadow-inner"
+          />
+        </div>
+      </div>
+
+      <ChatSidebar
+        chats={filteredChats}
+        currentUser={user}
+        onlineUsers={onlineUsers}
+        onChatClick={openChat}
+        activeChatId={activeChat?._id}
+      />
+    </div>
+
+    {/* Contenido principal (Ventana de Chat o Lista de Usuarios) */}
+    <div className="flex-1 min-w-0 relative z-10">
+      {activeChat ? (
+        <ChatWindow
+          activeChat={activeChat}
+          messages={messages}
+          setMessages={setMessages}
+          currentUser={user}
+          socket={socket}
+          isConnected={isConnected}
+          waitForConnection={waitForConnection}
+          onMenuToggle={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
+      ) : (
+        <UsersList 
+          users={filteredUsers} 
+          onUserSelect={startChat} 
+          searchTerm={searchTerm}
+          onMenuToggle={toggleSidebar}
         />
       )}
-
-      {/* Sidebar - CORREGIDO */}
-      <div className={`
-        fixed lg:relative z-30 h-full bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800
-        transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:w-96 w-80
-      `}>
-        {/* Buscador */}
-        <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-800">
-          <div className="relative">
-            <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            <input
-              type="text"
-              placeholder="Buscar chats o usuarios..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-            />
-          </div>
-        </div>
-
-        <ChatSidebar
-          chats={filteredChats}
-          currentUser={user}
-          onlineUsers={onlineUsers}
-          onChatClick={openChat}
-          activeChatId={activeChat?._id}
-        />
-      </div>
-
-      {/* Contenido principal */}
-      <div className="flex-1 min-w-0 relative z-10">
-        {activeChat ? (
-          <ChatWindow
-            activeChat={activeChat}
-            messages={messages}
-            setMessages={setMessages}
-            currentUser={user}
-            socket={socket}
-            isConnected={isConnected}
-            waitForConnection={waitForConnection}
-            onMenuToggle={toggleSidebar}
-            sidebarOpen={sidebarOpen}
-          />
-        ) : (
-          <UsersList 
-            users={filteredUsers} 
-            onUserSelect={startChat} 
-            searchTerm={searchTerm}
-            onMenuToggle={toggleSidebar}
-          />
-        )}
-      </div>
     </div>
-  );
+  </div>
+);
 }
 
 export default ChatPage;

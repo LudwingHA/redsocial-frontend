@@ -88,61 +88,57 @@ export function FeedPage() {
     }
   };
 return (
-    <div className="max-w-3xl mx-auto space-y-6">
-      {/* Stories Section - Minimalista y al inicio */}
-      <div className="p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border border-slate-200/80 dark:border-gray-700/80 shadow-md">
-        <StoryViewer />
-      </div>
+  <div className="max-w-2xl mx-auto space-y-4 pb-20 lg:pb-4">
+    {/* Stories Section - Instagram Style */}
+    <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <StoryViewer />
+    </div>
 
-      {/* Post Composer - Ahora justo debajo de las stories */}
-      <section className="z-0">
-        <PostComposer onPosted={handlePosted} />
-      </section>
-      
-      {/* Botón de Refrescar - Movido a una posición más discreta */}
-      <div className="flex justify-between items-center px-4">
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">
-          Novedades
-        </h2>
-        <button
-          onClick={handleRefresh}
-          disabled={loading}
-          aria-label="Actualizar Feed"
-          className="flex items-center gap-1.5 bg-slate-100 dark:bg-gray-700 hover:bg-slate-200 dark:hover:bg-gray-600 text-slate-700 dark:text-slate-300 px-3 py-1.5 rounded-full transition-all duration-300 border border-slate-200/60 dark:border-gray-600/60 disabled:opacity-50 text-sm font-medium"
-        >
-          <FiRefreshCw size={16} className={loading ? "animate-spin" : ""} />
-          <span className="hidden sm:inline">Actualizar</span>
-        </button>
-      </div>
+    {/* Post Composer */}
+    <PostComposer onPosted={handlePosted} />
 
+    {/* Feed Header */}
+    <div className="flex justify-between items-center px-2">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
+        Inicio
+      </h2>
+      <button
+        onClick={handleRefresh}
+        disabled={loading}
+        className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-600 disabled:opacity-50 text-sm font-medium"
+      >
+        <FiRefreshCw size={16} className={loading ? "animate-spin" : ""} />
+        <span className="hidden sm:inline">Actualizar</span>
+      </button>
+    </div>
 
-      {/* Posts List */}
-      <div className="space-y-6">
-        {posts.map((post) => (
-          <PostCard key={post._id} post={post} />
-        ))}
-      </div>
+    {/* Posts List */}
+    <div className="space-y-4">
+      {posts.map((post) => (
+        <PostCard key={post._id} post={post} />
+      ))}
+    </div>
 
-      {/* Load More Button - Se mantiene igual, es funcional */}
-      {hasMore && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={handleLoadMore}
-            disabled={loading}
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-all duration-300 shadow-md shadow-blue-500/30 disabled:opacity-50 font-medium flex items-center gap-2"
-          >
-            {loading ? (
-              <>
-                <FiRefreshCw size={18} className="animate-spin" />
-                <span>Cargando...</span>
-              </>
-            ) : (
-              <span>Cargar más posts</span>
-            )}
-          </button>
-        </div>
-      )}
-    </div>
-  );
+    {/* Load More Button */}
+    {hasMore && (
+      <div className="flex justify-center pt-6">
+        <button
+          onClick={handleLoadMore}
+          disabled={loading}
+          className="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-xl transition-all duration-300 font-medium flex items-center gap-2 border border-gray-200 dark:border-gray-600"
+        >
+          {loading ? (
+            <>
+              <FiRefreshCw size={18} className="animate-spin" />
+              <span>Cargando...</span>
+            </>
+          ) : (
+            <span>Ver más publicaciones</span>
+          )}
+        </button>
+      </div>
+    )}
+  </div>
+);
 }
 export default FeedPage;

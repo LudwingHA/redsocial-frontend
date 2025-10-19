@@ -160,172 +160,156 @@ export function StoryUploader({ onUploaded }) {
     if (loading) return;
     fileInputRef.current?.click();
   };
-
-  return (
-    <>
-      {/* Botón Compacto para Mobile */}
-      <div 
-        className="flex-shrink-0 cursor-pointer"
-        onClick={handleAddClick}
-      >
-        <div className="relative">
-          {/* Avatar más pequeño para mobile */}
-          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full p-0.5 bg-gradient-to-tr from-yellow-400 to-purple-600 hover:from-yellow-500 hover:to-purple-700 transition-all duration-200">
-            <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center relative overflow-hidden">
-              <img
-                src={currentUser.avatar ? `${URL_SERVER}${currentUser.avatar}` : "/default-avatar.png"}
-                alt={currentUser.username}
-                className="w-full h-full rounded-full object-cover hover:scale-105 transition-transform duration-200"
-              />
-              {loading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                  <ClipLoader size={14} color="#fff" />
-                </div>
-              )}
+// StoryUploader.jsx - RETURN Mejorado
+return (
+  <>
+    {/* Botón "Tu Story" */}
+    <div 
+      className="flex-shrink-0 cursor-pointer group w-[72px] sm:w-[80px] flex flex-col items-center space-y-1.5" 
+      onClick={handleAddClick}
+    >
+      <div className="relative w-[68px] h-[68px] sm:w-[72px] sm:h-[72px] p-[3px] rounded-full transition-all duration-300">
+        {/* Marco de "Tu Story" - Borde gris sutil */}
+        <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center relative overflow-hidden border-2 border-gray-300 dark:border-gray-700">
+          <img
+            src={currentUser.avatar ? `${URL_SERVER}${currentUser.avatar}` : "/default-avatar.png"}
+            alt={currentUser.username}
+            className="w-full h-full rounded-full object-cover border-4 border-white dark:border-gray-900 group-hover:scale-105 transition-transform duration-300 opacity-80"
+          />
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full backdrop-blur-sm">
+              <ClipLoader size={20} color="#fff" />
             </div>
-          </div>
-          
-          {/* Plus icon más pequeño */}
-          <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-0.5 shadow-sm">
-            <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-tr from-yellow-400 to-purple-600 rounded-full flex items-center justify-center">
-              <FiPlus size={10} className="text-white" />
-            </div>
+          )}
+        </div>
+        
+        {/* Icono de "+" flotante */}
+        <div className="absolute bottom-0 right-0 bg-white dark:bg-gray-900 rounded-full p-0.5 shadow-xl border-2 border-white dark:border-gray-900">
+          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+            <FiPlus size={14} className="text-white" />
           </div>
         </div>
       </div>
       
-      {/* Error Toast Compacto */}
-      {error && (
-        <div className="fixed top-3 left-1/2 transform -translate-x-1/2 z-[10000] max-w-[90vw]">
-          <div className="bg-red-500 text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 text-sm">
-            <FiAlertCircle size={16} />
-            <span className="flex-1 truncate max-w-[200px]">{error}</span>
+      <span className="text-xs text-gray-700 dark:text-gray-300 font-medium truncate w-full text-center">
+        Tu story
+      </span>
+    </div>
+    
+    {/* Input de archivo oculto */}
+    <input 
+      type="file" 
+      accept="image/*,video/*" 
+      onChange={handleFileInputChange}
+      ref={fileInputRef}
+      className="hidden"
+    />
+
+    {/* Error Toast Mejorado (Posición centrada) */}
+    {error && (
+      <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[10000] animate-in fade-in slide-in-from-top-4">
+        <div className="bg-red-500 text-white px-5 py-3 rounded-xl shadow-xl flex items-center space-x-3 text-sm backdrop-blur-sm border border-red-400 max-w-xs sm:max-w-md">
+          <FiAlertCircle size={20} className="flex-shrink-0" />
+          <span className="flex-1 font-semibold">{error}</span>
+          <button 
+            onClick={() => setError(null)} 
+            className="p-1 hover:bg-red-600/80 rounded-full transition-colors flex-shrink-0"
+          >
+            <FiX size={16} />
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Modal de Preview con Aspect Ratio 9/16 */}
+    {isModalOpen && storyMedia && (
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[9999] animate-in fade-in">
+        <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl w-full max-w-sm transform scale-95 animate-in slide-in-from-bottom-4">
+          
+          {/* Header del Modal */}
+          <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
+            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white">
+              Compartir Story
+            </h3>
             <button 
-              onClick={() => setError(null)} 
-              className="p-0.5 hover:bg-red-600 rounded-full"
+              onClick={handleCloseModal}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
             >
-              <FiX size={14} />
+              <FiX size={20} />
             </button>
           </div>
-        </div>
-      )}
-
-      {/* Input de archivo oculto */}
-      <input 
-        type="file" 
-        accept="image/*,video/*" 
-        onChange={handleFileInputChange}
-        ref={fileInputRef}
-        className="hidden"
-      />
-
-      {/* Modal Compacto y Responsive */}
-      {isModalOpen && storyMedia && (
-        <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-3 sm:p-4 z-[9999]">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm transform animate-scale-in">
-            
-            {/* Header Compacto */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white">
-                Crear story
-              </h3>
-              <button 
-                onClick={handleCloseModal}
-                className="p-1.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
-              >
-                <FiX size={20} />
-              </button>
+          
+          {/* Contenido del Modal */}
+          <div className="p-4 space-y-4">
+            <div className="aspect-[9/16] bg-black rounded-xl overflow-hidden shadow-2xl">
+              {storyMedia.type === "image" ? (
+                <img
+                  src={storyMedia.previewUrl}
+                  alt="Vista previa"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <video
+                  src={storyMedia.previewUrl}
+                  controls
+                  autoPlay
+                  muted
+                  loop
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
             
-            {/* Preview Content Compacto */}
-            <div className="p-4">
-              <div className="aspect-[9/16] bg-gray-900 rounded-xl overflow-hidden shadow-lg">
-                {storyMedia.type === "image" ? (
-                  <img
-                    src={storyMedia.previewUrl}
-                    alt="Vista previa"
-                    className="w-full h-full object-cover"
-                  />
+            {/* Información del archivo */}
+            <div className="flex items-center justify-between text-sm p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400 font-semibold">
+                {storyMedia.type === 'image' ? (
+                  <FiImage size={18} className="text-green-500" />
                 ) : (
-                  <video
-                    src={storyMedia.previewUrl}
-                    controls
-                    autoPlay
-                    muted
-                    loop
-                    className="w-full h-full object-cover"
-                  />
+                  <FiVideo size={18} className="text-blue-500" />
                 )}
+                <span className="truncate max-w-[150px]">
+                  {storyMedia.file.name}
+                </span>
               </div>
-              
-              {/* File Info Compacto */}
-              <div className="mt-3 flex items-center justify-between text-xs sm:text-sm">
-                <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-                  {storyMedia.type === 'image' ? (
-                    <FiImage size={14} className="text-green-500" />
-                  ) : (
-                    <FiVideo size={14} className="text-blue-500" />
-                  )}
-                  <span className="truncate max-w-[120px] sm:max-w-[150px]">
-                    {storyMedia.file.name}
-                  </span>
-                </div>
-                {storyMedia.duration && (
-                  <span className="text-xs text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-full">
-                    {storyMedia.duration.toFixed(1)}s
-                  </span>
+              {storyMedia.duration && (
+                <span className="text-xs text-gray-700 dark:text-gray-300 font-bold bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded-full">
+                  {storyMedia.duration.toFixed(1)}s
+                </span>
+              )}
+            </div>
+            
+            {/* Botones de acción */}
+            <div className="flex gap-3 pt-2">
+              <button
+                onClick={handleCloseModal}
+                disabled={loading}
+                className="flex-1 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded-xl font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Descartar
+              </button>
+              <button
+                onClick={handleUpload}
+                disabled={loading}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-3 rounded-xl font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-wait flex items-center justify-center space-x-2 shadow-lg shadow-purple-500/30"
+              >
+                {loading ? (
+                  <>
+                    <ClipLoader size={16} color="white" />
+                    <span>Subiendo...</span>
+                  </>
+                ) : (
+                  <>
+                    <FiUploadCloud size={20} />
+                    <span>Publicar Story</span>
+                  </>
                 )}
-              </div>
-              
-              {/* Action Buttons Compactos */}
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={handleCloseModal}
-                  disabled={loading}
-                  className="flex-1 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm disabled:opacity-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleUpload}
-                  disabled={loading}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-2 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all text-sm disabled:opacity-50 flex items-center justify-center space-x-1"
-                >
-                  {loading ? (
-                    <>
-                      <ClipLoader size={12} color="white" />
-                      <span>Subiendo...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FiUploadCloud size={14} />
-                      <span>Compartir</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              </button>
             </div>
           </div>
         </div>
-      )}
-
-      {/* Estilos de animación */}
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes scale-in {
-          from { transform: scale(0.9); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.2s ease-out;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.2s ease-out;
-        }
-      `}</style>
-    </>
-  );
+      </div>
+    )}
+  </>
+);
 }

@@ -26,52 +26,53 @@ export function UsersList({ users = [], onUserSelect, searchTerm, onMenuToggle }
       </div>
     );
   }
+// UsersList.jsx - RETURN Mejorado
 
-  return (
-    <div className="h-full overflow-y-auto bg-gradient-to-b from-white/80 to-gray-50/50 dark:from-gray-800/80 dark:to-gray-900/50 transition-colors duration-300">
-      <div className="p-4 lg:p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-white to-gray-50/80 dark:from-gray-800 dark:to-gray-900/80">
-        <h3 className="text-lg lg:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-          Usuarios disponibles ({users.length})
-        </h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Selecciona un usuario para comenzar a chatear</p>
-      </div>
-      
-      <div className="divide-y divide-gray-100/50 dark:divide-gray-700/50">
-        {users.map((user) => (
-          <div
-            key={user._id}
-            onClick={() => onUserSelect(user._id)}
-            className="p-3 lg:p-4 cursor-pointer hover:bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:hover:from-blue-900/20 dark:hover:to-purple-900/20 transition-all duration-300 group flex items-center space-x-3 lg:space-x-4"
-          >
-            <div className="relative flex-shrink-0">
-              <img
-                src={user.avatar ? `${URL_SERVER}${user.avatar}` : "/default-avatar.png"}
-                alt={user.username}
-                onError={(e) => { e.target.src = "/default-avatar.png"; }}
-                className="w-12 h-12 lg:w-14 lg:h-14 rounded-full object-cover border-2 border-white dark:border-gray-800 shadow-md group-hover:scale-105 transition-transform duration-300"
-              />
-              {user.isOnline && (
-                <span className="absolute -bottom-1 -right-1 w-3 h-3 lg:w-4 lg:h-4 bg-green-400 border-2 border-white dark:border-gray-800 rounded-full shadow-md" />
-              )}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-gray-800 dark:text-gray-100 text-sm lg:text-base truncate">
-                {user.username}
-              </h4>
-              {user.bio && (
-                <p className="text-xs lg:text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
-                  {user.bio}
-                </p>
-              )}
-            </div>
-
-            <button className="bg-gradient-to-r from-green-500 to-blue-500 dark:from-green-600 dark:to-blue-600 hover:from-green-600 hover:to-blue-600 dark:hover:from-green-700 dark:hover:to-blue-700 text-white p-2 lg:p-3 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 flex-shrink-0">
-              <FiUserPlus size={16} className="lg:w-4 lg:h-4" />
-            </button>
-          </div>
-        ))}
-      </div>
+return (
+  <div className="h-full overflow-y-auto bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div className="p-4 lg:p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-white dark:bg-gray-900 shadow-sm">
+      <h3 className="text-xl font-extrabold text-gray-900 dark:text-gray-100">
+        Usuarios para chatear
+      </h3>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Encuentra a alguien en línea para empezar un chat privado.</p>
     </div>
-  );
+    
+    <div className="divide-y divide-gray-100 dark:divide-gray-800">
+      {users.map((user) => (
+        <div
+          key={user._id}
+          onClick={() => onUserSelect(user._id)}
+          className="p-3 lg:p-4 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 group flex items-center space-x-3 lg:space-x-4 border-l-4 border-transparent hover:border-blue-500/50 dark:hover:border-blue-700/50"
+        >
+          <div className="relative flex-shrink-0">
+            <img
+              src={user.avatar ? `${URL_SERVER}${user.avatar}` : "/default-avatar.png"}
+              alt={user.username}
+              onError={(e) => { e.target.src = "/default-avatar.png"; }}
+              className="w-14 h-14 rounded-full object-cover border-3 border-white dark:border-gray-900 shadow-lg group-hover:scale-105 transition-transform duration-300"
+            />
+            {user.isOnline && (
+              <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full shadow-lg" />
+            )}
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h4 className="font-bold text-gray-900 dark:text-gray-100 text-base truncate">
+              {user.username}
+            </h4>
+            <p className={`text-sm truncate mt-1 ${user.isOnline ? 'text-green-500 dark:text-green-400 font-semibold' : 'text-gray-500 dark:text-gray-400'}`}>
+              {user.isOnline ? 'En línea ahora' : (user.bio || 'Sin biografía')}
+            </p>
+          </div>
+
+          <button className="bg-blue-500 text-white p-2 lg:p-2.5 rounded-full transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-110 flex-shrink-0"
+            title="Iniciar chat"
+          >
+            <FiUserPlus size={18} />
+          </button>
+        </div>
+      ))}
+    </div>
+  </div>
+);
 }

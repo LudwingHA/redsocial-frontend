@@ -1,29 +1,50 @@
+// AppLayout.jsx - Diseño Mejorado
+
 import React from "react";
 import { Outlet } from "react-router-dom";
-import { AppHeader } from "./AppHeader";
 import { Navigation } from "./Navigation";
+import { NotificationToast } from "../Notification/NotificationToast";
 
 export function AppLayout() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/20 to-purple-50/20 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10 transition-all duration-500">
-      <AppHeader />
+    // Contenedor principal: Se usa un fondo plano o un degradado muy sutil para modernidad.
+    // Se elimina el degradado complejo del fondo para un estilo más limpio, similar a Instagram.
+    // Se usa un color de fondo más neutral.
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-all duration-500">
       
-      {/* Contenedor principal de Nav y Main */}
-      <div className="flex flex-col lg:flex-row relative">
+      {/* Contenedor flexible que ajusta el layout. 
+        En desktop, el sidebar fijo a la izquierda y el contenido a la derecha. 
+      */}
+      <div className="flex relative"> 
+        
+        {/* Navigation: Sidebar (Desktop) y Navbar (Móvil) */}
         <Navigation />
         
-        {/* Contenido Principal */}
-        <main className="flex-1 w-full p-4 lg:p-6 transition-all duration-500 z-0">
-          {/* Ajuste importante: Padding inferior extra en móvil para la Nav Inferior */}
-          <div className="max-w-7xl mx-auto w-full pb-16 lg:pb-0"> 
+        {/*
+          MAIN: Área de Contenido Principal
+          - En móvil, w-full.
+          - En Desktop (lg), ocupa el espacio restante (flex-1) y se usa un margen para el sidebar.
+          - max-w-6xl es un poco más ancho que 4xl para dar más espacio a los detalles del feed.
+        */}
+        <main className="flex-1 w-full p-0 lg:p-0 z-10 lg:ml-64"> 
+          {/* Contenedor central del contenido: Ancho óptimo y padding para respirar */}
+          <div className="max-w-4xl xl:max-w-6xl mx-auto w-full pt-4 pb-20 lg:pt-6 lg:pb-6">
             <Outlet />
           </div>
         </main>
+
+        {/* ASIDE de Sugerencias (Opcional, se implementará en otra carpeta) 
+          - Se reserva el espacio a la derecha en pantallas muy grandes.
+        */}
+        {/* <aside className="hidden xl:block w-72 pt-6 sticky top-0 h-screen overflow-y-auto">
+          <div className="p-4"> 
+            <h3 className="font-bold text-lg mb-4 text-gray-700 dark:text-gray-300">Sugerencias</h3>
+          </div>
+        </aside> */}
       </div>
       
-      {/* Nota: En un layout real, podrías usar grid para gestionar la altura sin calc(100vh - X) */}
+      {/* Toast de Notificaciones (se mantiene su funcionalidad) */}
+      <NotificationToast />
     </div>
   );
 }
-
-export default AppLayout; 

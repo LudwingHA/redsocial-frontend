@@ -1,168 +1,204 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   FiHome,
   FiSearch,
   FiPlusSquare,
-  FiMessageSquare,
-  FiSettings,
   FiSend,
+  FiUser,
+  FiLogOut,
+  FiWifi,
+  FiWifiOff,
+  FiBell,
+  FiSettings, 
 } from "react-icons/fi";
 import { useAuth } from "../../auth/context/AuthContext";
-import { NotificationBell } from "../Notification/NotificationBell"; // Re-importado para la nav inferior
+import { useSocket } from "../../auth/context/SocketContext";
+import { NotificationBell } from "../Notification/NotificationBell";
+import ThemeToggle from "../ThemeToggle";
 
 const menuItems = [
   { key: "feed", label: "Inicio", icon: FiHome, path: "/" },
-  { key: "explore", label: "Explorar", icon: FiSearch, path: "/explore", hiddenOnMobile: true },
-  { key: "post", label: "Crear", icon: FiPlusSquare, path: "/create", hiddenOnMobile: true },
-  { key: "chat", label: "Mensajes", icon: FiMessageSquare, path: "/chat" },
-  { key: "configuracion", label: "configuracion", icon: FiSettings, path: "/settings" },
+  // { key: "explore", label: "Explorar", icon: FiSearch, path: "/explore" },
+  // { key: "post", label: "Crear", icon: FiPlusSquare, path: "/create" },
+  { key: "chat", label: "Mensajes", icon: FiSend, path: "/chat" },
+  {key: "settings", label: "Settings", icon: FiSettings, path: "/settings"}
 ];
 
-// Componente para el NavLink estándar (Sidebar)
-const NavItem = ({ item, isActive, navigate, user }) => {
-  const Icon = item.icon;
-  
-  if (item.key === 'notifications') {
-    return (
-        <div className={`p-0 flex items-center ${isActive ? 'lg:hidden' : ''}`}>
-             <NavLink
-                to={item.path}
-                end
-                className={({ isActive: navActive }) =>
-                    `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group min-w-max lg:min-w-full ${
-                        navActive
-                        ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl shadow-blue-500/30 dark:shadow-purple-500/30 font-semibold"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white border border-transparent"
-                    }`
-                }
-            >
-                <NotificationBell isMobile={false} />
-                <span className="font-medium text-sm lg:text-base">{item.label}</span>
-            </NavLink>
-        </div>
-    );
-  }
-
-  return (
-    <NavLink
-      key={item.key}
-      to={item.path}
-      end
-      className={({ isActive: navActive }) =>
-        `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group min-w-max lg:min-w-full ${
-          navActive
-            ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl shadow-blue-500/30 dark:shadow-purple-500/30 font-semibold"
-            : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white border border-transparent"
-        }`
-      }
-    >
-      <Icon size={20} />
-      <span className="font-medium text-sm lg:text-base hidden lg:block">{item.label}</span> {/* Oculto en nav inferior */}
-    </NavLink>
-  );
-};
-
-
 export function Navigation() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { connectionStatus } = useSocket();
   const navigate = useNavigate();
+  const location = useLocation();
   const profilePath = `/profile/${user?.id}`;
+
+  const getConnectionStatus = () => {
+    switch (connectionStatus) {
+      case "connected":
+        return { text: "Conectado", icon: <FiWifi className="text-green-500" /> };
+      case "reconnecting":
+        return { text: "Reconectando...", icon: <FiWifi className="text-yellow-500 animate-pulse" /> };
+      case "error":
+        return { text: "Error", icon: <FiWifiOff className="text-red-500" /> };
+      default:
+        return { text: "Desconectado", icon: <FiWifiOff className="text-gray-400" /> };
+    }
+  };
+
+  const status = getConnectionStatus();
+
+  if (!user) return null;
+
+  const getIsActive = (path) => {
+    if (path === "/") return location.pathname === "/";
+    if (path === "/profile") return location.pathname.startsWith("/profile/");
+    return location.pathname.startsWith(path);
+  };
 
   return (
     <>
-      {/* 1. Barra de Navegación Lateral (Desktop: lg+) */}
-      <nav className="hidden lg:block lg:w-64 xl:w-72 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-xl lg:min-h-[calc(100vh-65px)] p-6 border-r border-slate-200/60 dark:border-gray-700/60 transition-all duration-300 flex-shrink-0">
-        <div className="flex flex-col gap-2">
-          {menuItems.map((item) => (
-            <NavItem key={item.key} item={item} navigate={navigate} user={user} />
-          ))}
 
-          {/* Enlace de Perfil para Desktop */}
+      <nav className="fixed bottom-0 left-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200/60 dark:border-gray-700/60 z-50 lg:hidden shadow-xl h-14 sm:h-16">
+        <div className="flex justify-around items-center h-full max-w-xl mx-auto px-2 sm:px-4">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = getIsActive(item.path);
+
+            if (item.key === "post") {
+              return (
+                <button
+                  key={item.key}
+                  onClick={() => navigate(item.path)}
+                  className="p-2 sm:p-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg transform hover:scale-105 transition-transform duration-300"
+                  title={item.label}
+                >
+                  <Icon size={24} />
+                </button>
+              );
+            }
+            return (
+              <NavLink
+                key={item.key}
+                to={item.path}
+                className={`flex flex-col items-center justify-center p-2 transition-all duration-300 ${
+                  isActive
+                    ? "text-purple-600 dark:text-pink-400" 
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                }`}
+                title={item.label}
+              >
+                <Icon size={24} className={`${isActive ? "scale-105" : ""}`} />
+              </NavLink>
+            );
+          })}
           <NavLink
             to={profilePath}
-            className={({ isActive }) =>
-              `flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group min-w-max lg:min-w-full ${
-                isActive
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-xl shadow-blue-500/30 dark:shadow-purple-500/30 font-semibold"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/50 dark:hover:bg-gray-800/50 hover:text-slate-900 dark:hover:text-white border border-transparent"
-              }`
-            }
+            className={`flex items-center justify-center p-1 rounded-full border-2 transition-all duration-300 ${
+              getIsActive("/profile")
+                ? "border-purple-500 dark:border-pink-400 scale-105"
+                : "border-transparent hover:border-gray-300 dark:hover:border-gray-600"
+            }`}
+            title="Perfil"
           >
-            <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center shadow-md flex-shrink-0">
-                <span className="text-white text-xs font-bold uppercase">
-                    {user.username?.charAt(0)}
-                </span>
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-inner">
+              <span className="text-white text-sm font-bold uppercase">
+                {user.username?.charAt(0)}
+              </span>
             </div>
-            <span className="font-medium text-sm lg:text-base">Perfil</span>
           </NavLink>
+          <NotificationBell 
+            iconClass="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-pink-400"
+            buttonClass="p-2 sm:p-3 rounded-full hover:bg-gray-100/50 dark:hover:bg-gray-800/50"
+          />
         </div>
       </nav>
+      <aside className="hidden lg:flex flex-col justify-between fixed left-0 top-0 h-screen w-64 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-r border-gray-200/60 dark:border-gray-700/60 z-40 transition-all duration-300 shadow-lg">
+        <div className="p-4 flex flex-col gap-2">
+          <div className="flex items-center gap-3 my-4 px-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-md flex items-center justify-center">
+              <span className="text-white font-black text-xl">M</span>
+            </div>
+            <h1 className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-400 dark:to-pink-400">
+              MiRedSocial
+            </h1>
+          </div>
 
-      {/* 2. Barra de Navegación Inferior (Móvil: <lg) */}
-      <nav className="fixed bottom-0 left-0 w-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-gray-700/80 z-40 lg:hidden shadow-2xl">
-        <div className="flex justify-around items-center h-14 max-w-lg mx-auto px-2">
-          {menuItems
-            .filter(item => !item.hiddenOnMobile) // Filtra items para móvil
-            .map((item) => {
+          {/* Menú principal */}
+          <div className="flex flex-col gap-1 mt-4">
+            {[...menuItems, { key: "notifications", label: "Notificaciones", icon: FiBell, path: "/notifications" }].map((item) => {
               const Icon = item.icon;
-              if (item.key === 'notifications') { // En móvil, la campana de notificación está en la nav
-                  return <NotificationBell key={item.key} isMobile={true} />;
+              const path = item.key === "profile" ? profilePath : item.path;
+              const isActive = getIsActive(item.path);
+              
+              const baseClasses = "flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 text-lg";
+              const activeClasses = "bg-purple-500/10 dark:bg-purple-900/30 text-purple-600 dark:text-pink-400 font-bold border border-purple-200/50 dark:border-purple-700/50";
+              const inactiveClasses = "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-100";
+
+              if (item.key === "notifications") {
+                return (
+                  <div key={item.key} className={`${baseClasses} ${inactiveClasses}`}>
+                    <NotificationBell 
+                      iconClass="text-current"
+                      buttonClass="p-0"
+                      size={24}
+                    />
+                    <span className="text-lg">{item.label}</span>
+                  </div>
+                );
               }
-              if (item.key === 'chat') { // Mensajes Directos en móvil (como Instagram)
-                  return (
-                    <NavLink
-                        key={item.key}
-                        to={item.path}
-                        className={({ isActive }) =>
-                            `p-2 transition-all duration-300 ${
-                            isActive
-                                ? "text-purple-600 dark:text-purple-400 scale-110"
-                                : "text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400"
-                            }`
-                        }
-                    >
-                        <FiSend size={24} />
-                    </NavLink>
-                  );
-              }
+
               return (
                 <NavLink
                   key={item.key}
-                  to={item.path}
-                  end
-                  className={({ isActive }) =>
-                    `p-2 transition-all duration-300 ${
-                      isActive
-                        ? "text-purple-600 dark:text-purple-400 scale-110"
-                        : "text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400"
-                    }`
-                  }
+                  to={path}
+                  className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
                 >
-                  <Icon size={24} />
+                  <Icon size={24} className={isActive ? "fill-current" : ""} />
+                  <span className="text-lg">{item.label}</span>
                 </NavLink>
               );
             })}
-            
-            {/* Avatar del Usuario para Perfil en Móvil */}
-            <NavLink
-                to={profilePath}
-                className={({ isActive }) =>
-                    `p-1 transition-all duration-300 rounded-full ${
-                        isActive
-                        ? "ring-2 ring-offset-2 ring-purple-500 ring-offset-white dark:ring-offset-gray-900"
-                        : ""
-                    }`
-                }
-            >
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold uppercase">
-                        {user.username?.charAt(0)}
-                    </span>
-                </div>
-            </NavLink>
+          </div>
+          <NavLink
+            to={profilePath}
+            className={`flex items-center gap-4 px-4 py-3 rounded-xl mt-2 transition-all duration-200 border-2 ${
+              getIsActive("/profile")
+                ? "border-purple-500 dark:border-pink-400 bg-purple-500/10 dark:bg-purple-900/30 font-bold"
+                : "border-transparent hover:bg-gray-100 dark:hover:bg-gray-800/50"
+            }`}
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-white text-sm font-bold uppercase">
+                {user.username?.charAt(0)}
+              </span>
+            </div>
+            <span className="text-lg text-gray-800 dark:text-gray-200">Perfil</span>
+          </NavLink>
         </div>
-      </nav>
+
+        <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50 space-y-3">
+   
+          <div className="flex items-center gap-3 bg-gray-100/70 dark:bg-gray-800/70 px-4 py-2 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+            {status.icon}
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {status.text}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <ThemeToggle />
+            
+            <button
+              onClick={logout}
+              className="flex items-center gap-2 p-3 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-300 font-medium"
+              title="Cerrar sesión"
+            >
+              <FiLogOut size={20} />
+              <span className="text-base hidden sm:block">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </aside>
     </>
   );
 }

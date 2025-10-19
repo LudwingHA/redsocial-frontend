@@ -92,111 +92,108 @@ export function PostCard({ post }) {
     });
   };
 return (
-  <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-slate-200/80 dark:border-gray-700/80 overflow-hidden transition-all duration-300">
-    {/* Post Header */}
-    <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
-      <div className="flex items-center gap-3">
-        <Link to={`/profile/${localPost.author._id}`} className="flex items-center gap-3 group">
-          <img
-            src={`${URL_SERVER}${localPost.author.avatar}`}
-            alt={localPost.author.username}
-            className="w-9 h-9 rounded-full object-cover border border-gray-300 dark:border-gray-600 group-hover:border-blue-500 transition-all duration-300 shadow-sm"
-          />
-          <div>
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm">{localPost.author.username}</h3>
-            {/* Fecha más discreta y abajo */}
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{formatDate(localPost.createdAt)}</p>
-          </div>
-        </Link>
-        {/* {user.id !== localPost.author._id && <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />} <-- Si no va en el header, va aquí o en el menú */}
-      </div>
-      <PostMenu post={localPost} />
-    </div>
+  <article className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300">
+    {/* Post Header */}
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center gap-3">
+        <Link 
+          to={`/profile/${localPost.author._id}`} 
+          className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+        >
+          <img
+            src={`${URL_SERVER}${localPost.author.avatar}`}
+            alt={localPost.author.username}
+            className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-600"
+          />
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm">
+              {localPost.author.username}
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              {formatDate(localPost.createdAt)}
+            </p>
+          </div>
+        </Link>
+      </div>
+      <PostMenu post={localPost} />
+    </div>
 
-    {/* Post Content - Imagen primero, luego texto (patrón de Instagram) */}
-    {localPost.image && (
-      <div className="w-full bg-black flex justify-center items-center">
-        <img
-          src={`${URL_SERVER}${localPost.image}`}
-          alt="Post content"
-          // Clases para que la imagen se vea bien en varios tamaños
-          className="w-full h-auto max-h-[600px] object-cover" 
-        />
-      </div>
-    )}
+    {/* Post Image */}
+    {localPost.image && (
+      <div className="aspect-square bg-black flex justify-center items-center">
+        <img
+          src={`${URL_SERVER}${localPost.image}`}
+          alt="Post content"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    )}
 
-    {/* Action Buttons - Botones de interacción, ahora separados de la barra de likes */}
-    <div className="flex items-center justify-between px-4 py-2 sm:px-5">
-      <div className="flex items-center gap-3">
-        {/* Botón de Like */}
-        <button
-          onClick={handleLike}
-          disabled={!user || isLiking}
-          aria-label="Me gusta"
-          className={`p-1 transition-all duration-300 ${
-            hasLiked
-              ? 'text-rose-500 dark:text-rose-400 hover:text-rose-600'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-          } disabled:opacity-50 disabled:cursor-not-allowed`}
-        >
-          <FiHeart size={24} fill={hasLiked ? 'currentColor' : 'none'} />
-        </button>
+    {/* Action Buttons */}
+    <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center gap-4">
+        <button
+          onClick={handleLike}
+          disabled={!user || isLiking}
+          className={`p-1 transition-all duration-300 ${
+            hasLiked
+              ? 'text-red-500 scale-110'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+          }`}
+        >
+          <FiHeart size={24} fill={hasLiked ? 'currentColor' : 'none'} />
+        </button>
 
-        {/* Botón de Comentar */}
-        <button
-          onClick={() => setShowComments(!showComments)}
-          aria-label="Comentar"
-          className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300"
-        >
-          <FiMessageCircle size={24} />
-        </button>
-        
-        {/* Botón de Compartir (Simulado con FiSend) */}
-        <button 
-          aria-label="Compartir"
-          className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300 transform rotate-45"
-        >
-          <FiSend size={24} />
-        </button>
-      </div>
-      
-      {/* Botón de Guardar (Bookmark) */}
-      <button 
-        aria-label="Guardar publicación"
-        className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300"
-      >
-        <FiBookmark size={24} />
-      </button>
-    </div>
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all duration-300"
+        >
+          <FiMessageCircle size={24} />
+        </button>
 
-    {/* Stats Bar - Debajo de los botones (Patrón Instagram) */}
-    <div className="px-4 pb-2 sm:px-5">
-      <span className="text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-blue-500 cursor-pointer">
-        {localPost.likesCount} me gusta
-      </span>
-    </div>
-    
-    {/* Post Text - Texto de la publicación (Título/Caption) */}
-    <div className="px-4 pb-4 sm:px-5">
-      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-sm">
-        <span className="font-bold mr-2">{localPost.author.username}</span>
-        {localPost.content}
-      </p>
-      <button onClick={() => setShowComments(true)} className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors mt-1">
-        Ver los {localPost.comments?.length || 0} comentarios
-      </button>
-    </div>
+        <button className="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all duration-300 transform rotate-45">
+          <FiSend size={24} />
+        </button>
+      </div>
 
+      <button className="p-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all duration-300">
+        <FiBookmark size={24} />
+      </button>
+    </div>
 
-    {/* Comment List Section */}
-    {showComments && (
-      <CommentList
-        comments={localPost.comments}
-        onAdd={addComment}
-        postId={localPost._id}
-        postAuthorId={localPost.author._id}
-      />
-    )}
-  </article>
+    {/* Likes Count */}
+    <div className="px-4 pb-2">
+      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+        {localPost.likesCount} me gusta
+      </span>
+    </div>
+
+    {/* Post Content */}
+    <div className="px-4 pb-3">
+      <p className="text-gray-900 dark:text-white text-sm">
+        <span className="font-semibold mr-2">{localPost.author.username}</span>
+        {localPost.content}
+      </p>
+      
+      {localPost.comments?.length > 0 && (
+        <button 
+          onClick={() => setShowComments(true)}
+          className="text-gray-500 dark:text-gray-400 text-sm hover:text-gray-700 dark:hover:text-gray-300 mt-1 transition-colors"
+        >
+          Ver los {localPost.comments.length} comentarios
+        </button>
+      )}
+    </div>
+
+    {/* Comments Section */}
+    {showComments && (
+      <CommentList
+        comments={localPost.comments}
+        onAdd={addComment}
+        postId={localPost._id}
+        postAuthorId={localPost.author._id}
+      />
+    )}
+  </article>
 );
 };
