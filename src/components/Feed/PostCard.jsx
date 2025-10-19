@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiHeart, FiMessageCircle } from 'react-icons/fi';
+import { FiBookmark, FiHeart, FiMessageCircle, FiSend } from 'react-icons/fi';
 import { useAuth } from '../../auth/context/AuthContext';
 import { useSocket } from '../../auth/context/SocketContext';
 import { postAPI } from '../../api/api';
@@ -92,76 +92,111 @@ export function PostCard({ post }) {
     });
   };
 return (
-  <article className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-sm border border-slate-200/60 dark:border-gray-700/60 overflow-hidden transition-all duration-300 hover:shadow-md">
-    <div className="flex items-center justify-between p-4 border-b border-slate-200/60 dark:border-gray-700/60">
-      <div className="flex items-center gap-3">
-        <Link to={`/profile/${localPost.author._id}`} className="flex items-center gap-3">
-          <img
-            src={`${URL_SERVER}${localPost.author.avatar}`}
-            alt={localPost.author.username}
-            className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-gray-600 shadow-sm"
-          />
-          <div>
-            <h3 className="font-semibold text-slate-800 dark:text-slate-100">{localPost.author.username}</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400">{formatDate(localPost.createdAt)}</p>
-          </div>
-        </Link>
-        {user.id !== localPost.author._id && <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />}
-      </div>
-      <PostMenu post={localPost} />
-    </div>
+  <article className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-slate-200/80 dark:border-gray-700/80 overflow-hidden transition-all duration-300">
+    {/* Post Header */}
+    <div className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
+      <div className="flex items-center gap-3">
+        <Link to={`/profile/${localPost.author._id}`} className="flex items-center gap-3 group">
+          <img
+            src={`${URL_SERVER}${localPost.author.avatar}`}
+            alt={localPost.author.username}
+            className="w-9 h-9 rounded-full object-cover border border-gray-300 dark:border-gray-600 group-hover:border-blue-500 transition-all duration-300 shadow-sm"
+          />
+          <div>
+            <h3 className="font-bold text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-sm">{localPost.author.username}</h3>
+            {/* Fecha más discreta y abajo */}
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{formatDate(localPost.createdAt)}</p>
+          </div>
+        </Link>
+        {/* {user.id !== localPost.author._id && <FollowButton currentUserId={user.id} targetUserId={localPost.author._id} />} <-- Si no va en el header, va aquí o en el menú */}
+      </div>
+      <PostMenu post={localPost} />
+    </div>
 
-    <div className="p-4">
-      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{localPost.content}</p>
-      {localPost.image && (
-        <div className="mt-3 rounded-xl overflow-hidden">
-          <img
-            src={`${URL_SERVER}${localPost.image}`}
-            alt="Post content"
-            className="w-full h-auto max-h-80 object-cover"
-          />
-        </div>
-      )}
-    </div>
+    {/* Post Content - Imagen primero, luego texto (patrón de Instagram) */}
+    {localPost.image && (
+      <div className="w-full bg-black flex justify-center items-center">
+        <img
+          src={`${URL_SERVER}${localPost.image}`}
+          alt="Post content"
+          // Clases para que la imagen se vea bien en varios tamaños
+          className="w-full h-auto max-h-[600px] object-cover" 
+        />
+      </div>
+    )}
 
-    <div className="px-4 py-2 bg-slate-50/50 dark:bg-gray-700/50 border-y border-slate-200/60 dark:border-gray-700/60">
-      <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
-        <span>{localPost.likesCount} me gusta</span>
-        <span>{localPost.comments?.length || 0} comentarios</span>
-      </div>
-    </div>
+    {/* Action Buttons - Botones de interacción, ahora separados de la barra de likes */}
+    <div className="flex items-center justify-between px-4 py-2 sm:px-5">
+      <div className="flex items-center gap-3">
+        {/* Botón de Like */}
+        <button
+          onClick={handleLike}
+          disabled={!user || isLiking}
+          aria-label="Me gusta"
+          className={`p-1 transition-all duration-300 ${
+            hasLiked
+              ? 'text-rose-500 dark:text-rose-400 hover:text-rose-600'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          } disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          <FiHeart size={24} fill={hasLiked ? 'currentColor' : 'none'} />
+        </button>
 
-    <div className="flex">
-      <button
-        onClick={handleLike}
-        disabled={!user || isLiking}
-        className={`flex-1 flex items-center justify-center gap-2 py-3 transition-all duration-300 ${
-          hasLiked
-            ? 'text-rose-500 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-900/20'
-            : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50/50 dark:hover:bg-gray-700/50'
-        } disabled:opacity-50`}
-      >
-        <FiHeart size={20} fill={hasLiked ? 'currentColor' : 'none'} />
-        <span className="font-medium">Me gusta</span>
-      </button>
+        {/* Botón de Comentar */}
+        <button
+          onClick={() => setShowComments(!showComments)}
+          aria-label="Comentar"
+          className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300"
+        >
+          <FiMessageCircle size={24} />
+        </button>
+        
+        {/* Botón de Compartir (Simulado con FiSend) */}
+        <button 
+          aria-label="Compartir"
+          className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300 transform rotate-45"
+        >
+          <FiSend size={24} />
+        </button>
+      </div>
+      
+      {/* Botón de Guardar (Bookmark) */}
+      <button 
+        aria-label="Guardar publicación"
+        className="p-1 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all duration-300"
+      >
+        <FiBookmark size={24} />
+      </button>
+    </div>
 
-      <button
-        onClick={() => setShowComments(!showComments)}
-        className="flex-1 flex items-center justify-center gap-2 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50/50 dark:hover:bg-gray-700/50 transition-all duration-300"
-      >
-        <FiMessageCircle size={20} />
-        <span className="font-medium">Comentar</span>
-      </button>
-    </div>
+    {/* Stats Bar - Debajo de los botones (Patrón Instagram) */}
+    <div className="px-4 pb-2 sm:px-5">
+      <span className="text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-blue-500 cursor-pointer">
+        {localPost.likesCount} me gusta
+      </span>
+    </div>
+    
+    {/* Post Text - Texto de la publicación (Título/Caption) */}
+    <div className="px-4 pb-4 sm:px-5">
+      <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed text-sm">
+        <span className="font-bold mr-2">{localPost.author.username}</span>
+        {localPost.content}
+      </p>
+      <button onClick={() => setShowComments(true)} className="text-sm text-slate-500 dark:text-slate-400 hover:text-blue-500 transition-colors mt-1">
+        Ver los {localPost.comments?.length || 0} comentarios
+      </button>
+    </div>
 
-    {showComments && (
-      <CommentList
-        comments={localPost.comments}
-        onAdd={addComment}
-        postId={localPost._id}
-        postAuthorId={localPost.author._id}
-      />
-    )}
-  </article>
+
+    {/* Comment List Section */}
+    {showComments && (
+      <CommentList
+        comments={localPost.comments}
+        onAdd={addComment}
+        postId={localPost._id}
+        postAuthorId={localPost.author._id}
+      />
+    )}
+  </article>
 );
-}
+};

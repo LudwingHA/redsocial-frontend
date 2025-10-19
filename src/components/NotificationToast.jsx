@@ -73,7 +73,7 @@ export function NotificationToast() {
   };
 
   return (
-    <div className="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-sm">
+    <div className="fixed top-6 right-6 z-20 flex flex-col gap-3 max-w-sm">
       {toasts.map((toast, index) => (
         <div
           key={toast._id}

@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { URL_SERVER } from "../api/url";
 
-const SOCKET_URL = "https://redsocial-backend-production-36bd.up.railway.app";
+const SOCKET_URL = URL_SERVER;
 
 class SocketManager {
   constructor() {

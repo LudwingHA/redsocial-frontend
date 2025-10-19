@@ -41,84 +41,90 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
       minute: '2-digit'
     });
   };
+return (
+  <div className="p-4 bg-slate-50/80 dark:bg-gray-900/80 backdrop-blur-sm border-t border-slate-200/60 dark:border-gray-700/60 transition-all duration-300">
+    <div className="space-y-3 mb-4 max-h-72 overflow-y-auto pr-2 custom-scrollbar">
+      {comments?.map((comment) => (
+        <div key={comment._id} className="flex gap-2 items-start">
+          <div className="flex-shrink-0 mt-0.5">
+            {comment.author?.avatar ? (
+              <img
+                src={`${URL_SERVER}${comment.author.avatar}`}
+                alt={comment.author.username}
+                className="w-7 h-7 rounded-full object-cover shadow-sm" // Reducción de tamaño
+              />
+            ) : (
+              <div className="w-7 h-7 rounded-full bg-slate-400 dark:bg-gray-600 flex items-center justify-center shadow-sm">
+                <FiUser size={14} className="text-white" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            {/* Contenido del comentario más simple y pegado al texto */}
+            <div className="p-2.5 shadow-sm">
+              <p className="text-slate-700 dark:text-slate-300 text-sm leading-snug break-words">
+                <span className="font-semibold text-slate-800 dark:text-slate-100 mr-1">
+                  {comment.author?.username || 'Usuario'}
+                </span>
+                {comment.content}
+              </p>
+              <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 block">
+                {formatCommentDate(comment.createdAt || comment.timestamp)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
 
- return (
-  <div className="p-4 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-t border-slate-200/60 dark:border-gray-700/60 transition-all duration-300">
-    <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-      {comments?.map((comment) => (
-        <div key={comment._id} className="flex gap-3">
-          <div className="flex-shrink-0">
-            {comment.author?.avatar ? (
-              <img
-                src={`${URL_SERVER}${comment.author.avatar}`}
-                alt={comment.author.username}
-                className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-gray-600 shadow-sm"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center shadow-sm">
-                <FiUser size={16} className="text-white" />
-              </div>
-            )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="bg-slate-100/80 dark:bg-gray-700/80 rounded-2xl p-3 backdrop-blur-sm">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">
-                  {comment.author?.username || 'Usuario'}
-                </span>
-                <span className="text-xs text-slate-500 dark:text-slate-400 bg-white/50 dark:bg-gray-600/50 px-2 py-1 rounded-full">
-                  {formatCommentDate(comment.createdAt || comment.timestamp)}
-                </span>
-              </div>
-              <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{comment.content}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-      
-      {(!comments || comments.length === 0) && (
-        <div className="text-center py-4">
-          <p className="text-slate-500 dark:text-slate-400 text-sm bg-white/30 dark:bg-gray-700/30 rounded-xl p-3">
-            No hay comentarios aún. Sé el primero en comentar.
-          </p>
-        </div>
-      )}
-    </div>
+      {/* Mensaje de no hay comentarios - simplificado */}
+      {(!comments || comments.length === 0) && (
+        <div className="text-center py-2">
+          <p className="text-slate-500 dark:text-slate-400 text-sm">
+            No hay comentarios aún.
+          </p>
+        </div>
+      )}
+    </div>
 
-    {user && (
-      <form onSubmit={handleAdd} className="flex gap-3 items-start">
-        <div className="flex-shrink-0">
-          {user.avatar ? (
-            <img
-              src={`${URL_SERVER}${user.avatar}`}
-              alt={user.username}
-              className="w-8 h-8 rounded-full object-cover border border-slate-200 dark:border-gray-600 shadow-sm"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center shadow-sm">
-              <FiUser size={16} className="text-white" />
-            </div>
-          )}
-        </div>
-        
-        <div className="flex-1 flex gap-2">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Escribe un comentario..."
-            className="flex-1 px-4 py-2 border border-slate-200 dark:border-gray-600 rounded-full focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-gray-400 transition-all duration-300"
-            disabled={isSubmitting}
-          />
-          <button
-            type="submit"
-            disabled={!text.trim() || isSubmitting}
-            className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white p-2 rounded-full transition-all duration-300 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FiSend size={16} />
-          </button>
-        </div>
-      </form>
-    )}
-  </div>
+    {/* Formulario de comentario - más integrado */}
+    {user && (
+      <form onSubmit={handleAdd} className="flex gap-2 items-center pt-2 border-t border-slate-200/60 dark:border-gray-700/60">
+        <div className="flex-shrink-0">
+          {/* Avatar del usuario que comenta */}
+          {user.avatar ? (
+            <img
+              src={`${URL_SERVER}${user.avatar}`}
+              alt={user.username}
+              className="w-8 h-8 rounded-full object-cover shadow-sm"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-slate-400 dark:bg-gray-600 flex items-center justify-center shadow-sm">
+              <FiUser size={16} className="text-white" />
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 flex gap-2">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Añade un comentario..."
+            // Estilo simplificado para que parezca un input de Instagram
+            className="flex-1 px-3 py-2 border-0 rounded-full focus:ring-0 text-sm bg-slate-100 dark:bg-gray-700 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-gray-400 transition-all duration-300"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            aria-label="Enviar comentario"
+            disabled={!text.trim() || isSubmitting}
+            // Botón "Publicar" en texto simple, color de marca, oculto hasta que escriba
+            className={`font-semibold text-sm transition-opacity duration-300 ${!text.trim() || isSubmitting ? 'opacity-50 text-blue-500 cursor-not-allowed' : 'text-blue-500 hover:text-blue-600'}`}
+          >
+            Publicar
+          </button>
+        </div>
+      </form>
+    )}
+  </div>
 );
 }

@@ -308,5 +308,38 @@ export const notificationAPI = {
     return await response.json();
   },
 };
+//storys
+export const storyAPI = {
+  // Obtener todas las stories recientes
+  getStories: async () => {
+    const response = await api.get("stories");
+    return response.data;
+  },
+
+  // Subir nueva story
+  uploadStory: async (file, type) => {
+    const formData = new FormData();
+    formData.append("media", file);
+    formData.append("type", type);
+
+    const response = await api.post("/stories", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    return response.data;
+  },
+
+  // Marcar vista
+  viewStory: async (storyId) => {
+    const response = await api.post(`/stories/${storyId}/view`);
+    return response.data;
+  },
+
+  // Dar like a story
+  likeStory: async (storyId) => {
+    const response = await api.post(`/stories/${storyId}/like`);
+    return response.data;
+  },
+};
 
 export default api;
