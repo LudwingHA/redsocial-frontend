@@ -1,2 +1,2 @@
-export const URL_SERVER = "http://localhost:3000"
-export const URL_FRONTEND = "  http://localhost:5173"
+export const URL_SERVER = "https://redsocial-backend-production-36bd.up.railway.app"
+export const URL_FRONTEND = "https://redsocialtec.netlify.app/login"
