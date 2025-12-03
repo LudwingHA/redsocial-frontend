@@ -43,11 +43,11 @@ export function CommentList({ comments, onAdd, postId, postAuthorId }) {
   };
 return (
   <div className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-all duration-300">
-    {/* Comments List */}
+
     <div className="max-h-60 overflow-y-auto px-4 py-3 space-y-3 custom-scrollbar">
       {comments?.map((comment) => (
         <div key={comment._id} className="flex gap-3 items-start">
-          {/* User Avatar */}
+
           <div className="flex-shrink-0">
             {comment.author?.avatar ? (
               <img
@@ -61,8 +61,7 @@ return (
               </div>
             )}
           </div>
-          
-          {/* Comment Content */}
+
           <div className="flex-1 min-w-0">
             <div className="bg-gray-50 dark:bg-gray-700 rounded-2xl px-3 py-2">
               <p className="text-sm text-gray-900 dark:text-white break-words">
@@ -79,7 +78,7 @@ return (
         </div>
       ))}
 
-      {/* Empty State */}
+
       {(!comments || comments.length === 0) && (
         <div className="text-center py-4">
           <p className="text-gray-500 dark:text-gray-400 text-sm">
@@ -89,11 +88,11 @@ return (
       )}
     </div>
 
-    {/* Comment Form */}
+
     {user && (
       <form onSubmit={handleAdd} className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
         <div className="flex gap-3 items-center">
-          {/* User Avatar */}
+    
           <div className="flex-shrink-0">
             {user.avatar ? (
               <img
@@ -108,7 +107,6 @@ return (
             )}
           </div>
 
-          {/* Input Field */}
           <div className="flex-1 flex gap-2">
             <input
               value={text}

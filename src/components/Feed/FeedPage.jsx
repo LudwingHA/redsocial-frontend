@@ -89,15 +89,15 @@ export function FeedPage() {
   };
 return (
   <div className="max-w-2xl mx-auto space-y-4 pb-20 lg:pb-4">
-    {/* Stories Section - Instagram Style */}
+ 
     <div className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
       <StoryViewer />
     </div>
 
-    {/* Post Composer */}
+
     <PostComposer onPosted={handlePosted} />
 
-    {/* Feed Header */}
+
     <div className="flex justify-between items-center px-2">
       <h2 className="text-xl font-bold text-gray-900 dark:text-white hidden sm:block">
         Inicio
@@ -112,14 +112,14 @@ return (
       </button>
     </div>
 
-    {/* Posts List */}
+
     <div className="space-y-4">
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
     </div>
 
-    {/* Load More Button */}
+
     {hasMore && (
       <div className="flex justify-center pt-6">
         <button
